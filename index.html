@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>西門晨光天文 | 115上學期</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+            background-color: #fefce8; /* 淡黃色溫暖背景 */
+            color: #1e1b4b;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* 淺色星空背景點綴 */
+        .stars {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(30, 27, 75, 0.15), rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 40px, rgba(217, 119, 6, 0.2), rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 150px 160px, rgba(30, 27, 75, 0.1), rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 300px 300px;
+            pointer-events: none;
+        }
+
+        /* 質感卡片 */
+        .light-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .custom-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(251, 191, 36, 0.6); border-radius: 10px; }
+        
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+        /* 公告欄與班表表格樣式 (藍白專業風格) */
+        .blue-table th, .blue-table td { padding: 12px; border: 1px solid #e2e8f0; }
+        .blue-table th { background: #1e3a8a; color: #ffffff; font-weight: 700; white-space: nowrap; }
+        .blue-table tbody tr:nth-child(even) { background: #f8fafc; }
+        .blue-table tbody tr:hover { background: #eff6ff; }
+
+        /* 查詢者凸顯特效 */
+        .highlight-volunteer {
+            background: #fef08a !important;
+            color: #854d0e !important;
+            font-weight: 900 !important;
+            border: 2px solid #eab308 !important;
+            border-radius: 8px;
+            padding: 2px 8px;
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="stars"></div>
+    
+    <div id="app" class="flex flex-col min-h-screen max-w-7xl mx-auto px-4 md:px-6 py-6 relative z-10">
+        
+        <!-- Header 導覽列 (綠斗篷小王子 Logo) -->
+        <header class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 bg-white/90 p-4 rounded-3xl shadow-sm border border-amber-200">
+            <div class="flex items-center gap-4">
+                <div class="relative w-16 h-16 shrink-0">
+                    <img src="螢幕擷取畫面 2026-09-03 094637.png" alt="小王子Logo" class="w-full h-full object-cover drop-shadow-md rounded-full bg-amber-100 p-1 border border-amber-300">
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black text-indigo-950 mb-1">西門晨光天文</h1>
+                    <p class="text-indigo-800 text-sm font-bold bg-amber-100/80 inline-block px-3 py-1 rounded-full border border-amber-300">
+                        115上學期，班表與進班時數查詢。「真正重要的東西，用眼睛是看不見的。」
+                    </p>
+                </div>
+            </div>
+
+            <nav class="flex bg-indigo-950/5 rounded-full p-1.5 w-full md:w-auto overflow-x-auto border border-indigo-950/10">
+                <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id"
+                        :class="['px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2', 
+                                currentTab === tab.id ? 'bg-indigo-600 text-white shadow-md' : 'text-indigo-900 hover:bg-white/60']">
+                    <i :class="tab.icon"></i> {{ tab.label }}
+                </button>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1">
+            <transition name="fade" mode="out-in">
+                
+                <!-- ================== TAB 1: 首頁 ================== -->
+                <div v-if="currentTab === 'home'" key="home" class="space-y-8">
+                    
+                    <!-- 第一層：雲端檔案下載 (置頂) & 佈告欄 -->
+                    <div class="light-card rounded-3xl p-6 md:p-8 space-y-6">
+                        <div class="text-center">
+                            <a href="https://drive.google.com/drive/folders/1jzFMChchmz8mPAu64sBDpxN0O7H8H4d3?usp=drive_link" target="_blank" 
+                               class="inline-flex items-center gap-3 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-white font-black px-8 py-3.5 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+                                <i class="fas fa-cloud-download-alt text-xl"></i>
+                                下載本學期雲端教學檔案
+                            </a>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-black text-indigo-950 mb-3 flex items-center gap-2">
+                                <i class="fas fa-bullhorn text-amber-500"></i> 星際廣播 (佈告欄)
+                            </h3>
+                            <div class="overflow-auto max-h-[300px] custom-scroll rounded-xl border border-indigo-100 bg-white">
+                                <table class="w-full text-left blue-table text-sm">
+                                    <thead>
+                                        <tr>
+                                            <th class="w-24">日期</th>
+                                            <th class="w-32">時間</th>
+                                            <th class="w-40">地點</th>
+                                            <th>活動內容</th>
+                                            <th>備註</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, idx) in store.bulletin" :key="idx">
+                                            <td class="font-bold text-indigo-900">{{ item.date }}</td>
+                                            <td class="text-gray-600">{{ item.time }}</td>
+                                            <td class="text-indigo-800">{{ item.location }}</td>
+                                            <td class="font-medium text-gray-800">{{ item.content }}</td>
+                                            <td class="text-gray-500 text-xs">{{ item.notes }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 第二層：活動影像紀錄 -->
+                    <div class="light-card rounded-3xl p-6 md:p-8">
+                        <h3 class="text-xl font-black text-indigo-950 mb-4 flex items-center gap-2">
+                            <i class="fas fa-camera-retro text-amber-500"></i> 活動影像紀錄
+                        </h3>
+                        <div class="space-y-6">
+                            <div v-for="act in store.activities" :key="act.id" class="flex flex-col md:flex-row gap-6 bg-white p-5 rounded-2xl border border-indigo-100 shadow-sm">
+                                <div class="w-full md:w-2/3 flex gap-3 overflow-x-auto custom-scroll pb-2 items-center">
+                                    <div v-if="!act.images || act.images.length === 0" class="w-full text-center text-sm text-gray-400 py-10 bg-indigo-50/50 rounded-xl border border-dashed border-indigo-200">
+                                        <i class="fas fa-images text-2xl mb-1 block opacity-50"></i> 尚無活動照片 (可至後臺上傳)
+                                    </div>
+                                    <div v-for="(img, iIdx) in act.images" :key="iIdx" class="shrink-0">
+                                        <img :src="img" class="h-32 w-auto rounded-lg object-cover border border-gray-200 shadow-sm">
+                                    </div>
+                                </div>
+                                <div class="w-full md:w-1/3 flex flex-col justify-start">
+                                    <h4 class="text-lg font-black text-indigo-900 mb-2 border-b border-amber-200 pb-1">{{ act.title }}</h4>
+                                    <p class="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">{{ act.desc }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 第三層：系統觀測站 (滿寬置底) -->
+                    <div class="light-card rounded-3xl p-6 md:p-8 border-t-4 border-t-amber-400">
+                        <h3 class="text-2xl font-black text-indigo-950 mb-6 flex items-center gap-2">
+                            <i class="fas fa-satellite-dish text-indigo-600"></i> 系統觀測站
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                            <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100 text-center">
+                                <span class="text-gray-500 text-sm font-bold block mb-1">查詢今日日期</span>
+                                <span class="font-mono text-indigo-950 text-xl font-black">{{ todayDate }}</span>
+                            </div>
+                            <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100 text-center">
+                                <span class="text-gray-500 text-sm font-bold block mb-1">班表最後更新</span>
+                                <span class="font-mono text-emerald-600 text-lg font-black">{{ store.lastUpdated || '尚無紀錄' }}</span>
+                            </div>
+                            <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100 text-center">
+                                <span class="text-gray-500 text-sm font-bold block mb-1">全校進班總數</span>
+                                <span class="font-black text-indigo-950 text-2xl">{{ totalClassesCount }} <span class="text-sm text-gray-500">班</span></span>
+                            </div>
+                            <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-100 text-center">
+                                <span class="text-gray-500 text-sm font-bold block mb-1">參與志工總數</span>
+                                <span class="font-black text-indigo-950 text-2xl">{{ Object.keys(calculatedStats).length }} <span class="text-sm text-gray-500">人</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================== TAB 2: 班表查詢 ================== -->
+                <div v-else-if="currentTab === 'schedule'" key="schedule" class="space-y-6">
+                    <div class="light-card rounded-3xl p-6 md:p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+                            <div>
+                                <label class="block text-sm font-bold text-indigo-900 mb-1">查詢維度</label>
+                                <select v-model="queryType" class="w-full bg-white border border-indigo-200 rounded-xl p-2.5 font-bold text-indigo-950 outline-none">
+                                    <option value="grade">依年級梯次查詢</option>
+                                    <option value="class">依特定班級查詢</option>
+                                    <option value="volunteer">依志工個人查詢 (自動凸顯)</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-indigo-900 mb-1">選擇目標</label>
+                                <select v-if="queryType === 'grade'" v-model="queryValue" class="w-full bg-white border border-indigo-200 rounded-xl p-2.5 font-bold text-indigo-950 outline-none">
+                                    <option value="all">🚀 顯示全校總表</option>
+                                    <option v-for="g in gradeList" :key="g.id" :value="g.id">{{ g.title }}</option>
+                                </select>
+                                <select v-if="queryType === 'class'" v-model="queryValue" class="w-full bg-white border border-indigo-200 rounded-xl p-2.5 font-bold text-indigo-950 outline-none">
+                                    <option v-for="c in classList" :key="c" :value="c">{{ c }} 班</option>
+                                </select>
+                                <select v-if="queryType === 'volunteer'" v-model="queryValue" class="w-full bg-amber-50 border border-amber-300 rounded-xl p-2.5 font-black text-amber-950 outline-none">
+                                    <option v-for="v in volunteerList" :key="v" :value="v">⭐ {{ v }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 班表總表 -->
+                        <div class="overflow-x-auto custom-scroll rounded-2xl border border-indigo-200 shadow-md bg-white">
+                            <table class="w-full text-center text-sm border-collapse">
+                                <thead>
+                                    <tr class="bg-indigo-600 text-white">
+                                        <th class="p-3">日期</th>
+                                        <th class="p-3">年級梯次</th>
+                                        <th class="p-3">班級 (導師)</th>
+                                        <th class="p-3">單元</th>
+                                        <th class="p-3 border-l border-indigo-500 bg-indigo-700">主講</th>
+                                        <th class="p-3">助教 1</th>
+                                        <th class="p-3">助教 2</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-if="filteredSchedule.length === 0">
+                                        <td colspan="7" class="py-12 text-indigo-400 font-bold">查無相關排班資料</td>
+                                    </tr>
+                                    <tr v-for="(item, idx) in filteredSchedule" :key="idx" class="border-b border-gray-100 hover:bg-amber-50">
+                                        <td class="p-3 font-bold text-indigo-800 whitespace-nowrap">{{ item.date }} <span class="text-xs text-gray-500">{{ getWeekday(item.date) }}</span></td>
+                                        <td class="p-3 text-xs text-gray-500 font-bold">{{ item.gradeTitle }}</td>
+                                        <td class="p-3 font-black text-gray-800">{{ item.className }} <span class="text-xs text-indigo-600">({{ item.teacher }})</span></td>
+                                        <td class="p-3"><span class="bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded-md font-bold text-xs">{{ item.unit }}</span></td>
+                                        
+                                        <td class="p-3 border-l border-gray-100 bg-gray-50/50">
+                                            <span :class="{'highlight-volunteer': isHighlighted(item.main)}">{{ item.main || '-' }}</span>
+                                        </td>
+                                        <td class="p-3">
+                                            <span :class="{'highlight-volunteer': isHighlighted(item.asst1)}">{{ item.asst1 || '-' }}</span>
+                                        </td>
+                                        <td class="p-3">
+                                            <span :class="{'highlight-volunteer': isHighlighted(item.asst2)}">{{ item.asst2 || '-' }}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================== TAB 3: 時數查詢 (個人置頂，全體在下) ================== -->
+                <div v-else-if="currentTab === 'hours'" key="hours" class="space-y-8">
+                    
+                    <!-- 1. 個人時數查詢 (置頂) -->
+                    <div class="light-card rounded-3xl p-6 md:p-8 border-t-4 border-t-amber-400 shadow-md">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                            <h2 class="text-2xl font-black text-indigo-950 flex items-center gap-2">
+                                <i class="fas fa-user-astronaut text-amber-500"></i> 志工個人時數查詢
+                            </h2>
+                            <select v-model="selectedVolunteerForChart" class="w-full md:w-64 bg-white border border-indigo-200 rounded-xl p-2.5 font-bold text-indigo-950 outline-none">
+                                <option value="">-- 請選擇志工 --</option>
+                                <option v-for="v in volunteerList" :key="v" :value="v">{{ v }}</option>
+                            </select>
+                        </div>
+                        <div class="relative h-[260px] w-full bg-white rounded-2xl p-4 border border-indigo-50 flex justify-center">
+                            <canvas v-show="selectedVolunteerForChart" id="indivHoursChart"></canvas>
+                            <div v-if="!selectedVolunteerForChart" class="absolute inset-0 flex items-center justify-center text-gray-400 font-bold">
+                                請由右上角選單選擇一位志工查看專屬長條圖
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 全體志工時數統計 (置底) -->
+                    <div class="light-card rounded-3xl p-6 md:p-8 shadow-md">
+                        <h2 class="text-2xl font-black text-indigo-950 mb-6 flex items-center gap-2">
+                            <i class="fas fa-users text-indigo-600"></i> 全體志工進班時數統計
+                        </h2>
+                        <div class="relative h-[400px] w-full bg-white rounded-2xl p-4 border border-indigo-50">
+                            <canvas id="allHoursChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================== TAB 4: 後臺管理 ================== -->
+                <div v-else-if="currentTab === 'admin'" key="admin" class="space-y-6">
+                    
+                    <!-- 登入畫面 (保持空白，密碼為 3020) -->
+                    <div v-if="!isAdmin" class="light-card rounded-3xl p-10 max-w-md mx-auto text-center mt-12 shadow-xl border-t-8 border-t-amber-400">
+                        <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-600 text-2xl">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h2 class="text-2xl font-black text-indigo-950 mb-6">星際指揮中心 (管理登入)</h2>
+                        <input type="password" v-model="adminPwd" @keyup.enter="loginAdmin" placeholder="請輸入密碼" 
+                               class="w-full bg-white border border-indigo-200 rounded-xl p-3 text-indigo-950 text-center font-bold mb-4 outline-none focus:border-amber-400">
+                        <button @click="loginAdmin" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl transition shadow-md mb-4">登入系統</button>
+                        <p v-if="loginError" class="text-red-500 font-bold text-sm mb-3">{{ loginError }}</p>
+                        <button @click="forgotPassword" class="text-sm font-bold text-indigo-600 hover:underline">忘記密碼？寄送重置信件</button>
+                    </div>
+
+                    <!-- 視覺化文書編輯儀表板 (無程式碼) -->
+                    <div v-else class="space-y-8">
+                        <div class="bg-indigo-950 text-white rounded-3xl p-6 flex flex-col md:flex-row justify-between items-center gap-4 shadow-xl">
+                            <div>
+                                <h2 class="text-2xl font-black flex items-center gap-2"><i class="fas fa-user-shield text-amber-400"></i> 指揮中心文書編輯面板</h2>
+                                <p class="text-indigo-200 text-sm mt-1">直接在下方表格中更新內容，無需編寫任何程式碼。並可隨時下載或匯入備份檔。</p>
+                            </div>
+                            <div class="flex flex-wrap gap-3">
+                                <button @click="saveDataToLocal" class="bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-3 rounded-xl font-black flex items-center gap-2 shadow-md"><i class="fas fa-save"></i> 儲存所有變更</button>
+                                <button @click="exportJson" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-3 rounded-xl font-bold flex items-center gap-2"><i class="fas fa-download"></i> 下載備份檔</button>
+                                <button @click="$refs.importInput.click()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-3 rounded-xl font-bold flex items-center gap-2"><i class="fas fa-upload"></i> 匯入備份檔</button>
+                                <input type="file" ref="importInput" @change="importJson" class="hidden" accept=".json">
+                                <button @click="isAdmin = false" class="bg-white/10 hover:bg-white/20 px-4 py-3 rounded-xl font-bold transition">登出</button>
+                            </div>
+                        </div>
+
+                        <!-- 1. 班表排班文書編輯 (表格化) -->
+                        <div class="light-card rounded-3xl p-6 md:p-8 space-y-6">
+                            <h3 class="text-xl font-black text-indigo-950 mb-2 flex items-center gap-2"><i class="fas fa-table text-indigo-600"></i> 編輯進班班表 (各梯次與班級師資)</h3>
+                            <p class="text-xs text-gray-500 mb-4">您可以直接在下方表格修改各班級的單元、主講與助教名稱：</p>
+                            
+                            <div v-for="group in store.schedule" :key="group.id" class="bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100 space-y-4">
+                                <h4 class="text-lg font-black text-indigo-900 border-b border-amber-300 pb-1 flex justify-between items-center">
+                                    <span>{{ group.title }}</span>
+                                    <span class="text-xs font-normal text-gray-500">日期 1: <input v-model="group.dates[0].date" class="bg-white border rounded px-2 py-0.5 text-xs w-28"> | 日期 2: <input v-model="group.dates[1].date" class="bg-white border rounded px-2 py-0.5 text-xs w-28"> | 日期 3: <input v-model="group.dates[2].date" class="bg-white border rounded px-2 py-0.5 text-xs w-28"></span>
+                                </h4>
+                                
+                                <div v-for="cls in group.classes" :key="cls.id" class="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm space-y-3">
+                                    <div class="font-bold text-indigo-950 text-base">班級：{{ cls.name }} 班 (導師：{{ cls.teacher }})</div>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                        <div v-for="(lesson, lIdx) in cls.lessons" :key="lIdx" class="bg-indigo-50/40 p-3 rounded-lg border border-indigo-100 space-y-2 text-xs">
+                                            <div class="font-bold text-indigo-800 flex justify-between items-center">
+                                                <span>第 {{ lIdx+1 }} 次進班</span>
+                                                <input v-model="lesson.unit" placeholder="單元(例:U1)" class="w-16 bg-white border rounded px-1 text-center font-bold">
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-500">主講:</span>
+                                                <input v-model="lesson.main" placeholder="主講老師" class="w-full bg-white border rounded px-2 py-1 mt-0.5 font-bold">
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-500">助教 1:</span>
+                                                <input v-model="lesson.asst1" placeholder="助教1" class="w-full bg-white border rounded px-2 py-1 mt-0.5">
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-500">助教 2:</span>
+                                                <input v-model="lesson.asst2" placeholder="助教2" class="w-full bg-white border rounded px-2 py-1 mt-0.5">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. 佈告欄文書編輯 -->
+                        <div class="light-card rounded-3xl p-6 md:p-8">
+                            <h3 class="text-xl font-black text-indigo-950 mb-4 flex items-center gap-2"><i class="fas fa-bullhorn text-amber-500"></i> 編輯星際廣播 (佈告欄)</h3>
+                            <div class="space-y-3 mb-4">
+                                <div v-for="(item, idx) in store.bulletin" :key="idx" class="flex flex-wrap gap-2 items-center bg-indigo-50/50 p-3 rounded-xl border border-indigo-100">
+                                    <input v-model="item.date" placeholder="日期" class="w-24 bg-white border border-gray-300 rounded-lg p-2 text-sm font-bold">
+                                    <input v-model="item.time" placeholder="時間" class="w-32 bg-white border border-gray-300 rounded-lg p-2 text-sm">
+                                    <input v-model="item.location" placeholder="地點" class="w-36 bg-white border border-gray-300 rounded-lg p-2 text-sm">
+                                    <input v-model="item.content" placeholder="活動內容" class="flex-1 bg-white border border-gray-300 rounded-lg p-2 text-sm font-bold">
+                                    <input v-model="item.notes" placeholder="備註" class="w-40 bg-white border border-gray-300 rounded-lg p-2 text-sm">
+                                    <button @click="store.bulletin.splice(idx, 1)" class="bg-red-500 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                            <button @click="store.bulletin.push({date:'', time:'', location:'', content:'', notes:''})" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-900 font-bold px-4 py-2 rounded-xl text-sm"><i class="fas fa-plus"></i> 新增公告項目</button>
+                        </div>
+
+                        <!-- 3. 活動紀錄與拖拉上傳照片 -->
+                        <div class="light-card rounded-3xl p-6 md:p-8">
+                            <h3 class="text-xl font-black text-indigo-950 mb-4 flex items-center gap-2"><i class="fas fa-images text-emerald-600"></i> 編輯活動影像紀錄與照片上傳</h3>
+                            <div v-for="(act, aIdx) in store.activities" :key="act.id" class="space-y-4 bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100 mb-4">
+                                <div class="flex justify-between items-center">
+                                    <input v-model="act.title" placeholder="活動標題..." class="w-2/3 bg-white border border-gray-300 rounded-xl p-2.5 font-bold text-lg">
+                                    <button @click="store.activities.splice(aIdx, 1)" class="text-red-500 font-bold text-sm"><i class="fas fa-trash"></i> 刪除活動</button>
+                                </div>
+                                <textarea v-model="act.desc" rows="3" placeholder="活動文字敘述..." class="w-full bg-white border border-gray-300 rounded-xl p-3 text-sm"></textarea>
+                                
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1">上傳活動照片 (可將多張照片滑鼠拖曳至下方框內)</label>
+                                    <div class="border-2 border-dashed border-indigo-300 rounded-xl p-6 text-center bg-white hover:bg-indigo-50/50 cursor-pointer relative"
+                                         @dragover.prevent @drop.prevent="handleImageDrop($event, act)">
+                                        <input type="file" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" @change="handleImageDrop($event, act)">
+                                        <i class="fas fa-cloud-upload-alt text-3xl text-indigo-500 mb-2"></i>
+                                        <p class="font-bold text-indigo-950">點擊選擇檔案 或 將照片拖曳至此</p>
+                                    </div>
+                                    <div v-if="act.images && act.images.length > 0" class="flex gap-2 mt-3 overflow-x-auto">
+                                        <div v-for="(img, i) in act.images" :key="i" class="relative group shrink-0">
+                                            <img :src="img" class="h-20 w-auto rounded-lg border object-cover">
+                                            <button @click="act.images.splice(i, 1)" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center shadow">×</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button @click="store.activities.push({id:Date.now(), title:'新活動', desc:'', images:[]})" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold px-4 py-2 rounded-xl text-sm"><i class="fas fa-plus"></i> 新增一場活動</button>
+                        </div>
+                    </div>
+                </div>
+
+            </transition>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-gray-500 text-xs font-bold py-6 border-t border-gray-200">
+            <p>西門晨光天文志工團隊 &copy; 2026. Designed with Anna Liao</p>
+        </footer>
+
+        <!-- Toast 通知 -->
+        <div v-if="toastMsg" class="fixed bottom-6 right-6 z-[100] bg-emerald-500 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 font-bold">
+            <i class="fas fa-check-circle text-xl"></i> {{ toastMsg }}
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, reactive, computed, watch, nextTick, onMounted } = Vue;
+
+        const defaultBulletin = [
+            { date: "1/9 (五)", time: "9:00 - 11:30", location: "嘉義市蘭潭國小", content: "新志工培訓", notes: "小菜,珍華/green,怡婷" },
+            { date: "1/13 (二)", time: "9:00 - 12:00", location: "復興國小", content: "114下志工培訓", notes: "中午期末聚餐,討論分組" },
+            { date: "1/20 (二)", time: "13:00 - 16:00", location: "復興國小現場", content: "現場試教", notes: "錄影試教, 1/24前上傳" },
+            { date: "2/26 (四)", time: "9:30 - 11:00", location: "復興國小", content: "期初會議", notes: "" },
+            { date: "3/3 (二)", time: "9:30 - 11:00", location: "嘉義市蘭潭國小", content: "天文增能演講", notes: "走入天文的世界 (吳福河老師)" }
+        ];
+
+        const defaultActivities = [
+            { id: 1, title: "114下學期 志工培訓大會", desc: "感謝各位志工熱情參與期初培訓！透過吳老師的精采解說，我們學習到了更多引導孩子們探索宇宙的技巧，期待新學期的到來。", images: [] }
+        ];
+
+        const defaultScheduleData = [
+            { id: "g3", title: "三年級班級區塊", dates: [{ date: "2026-09-24" }, { date: "2026-09-30" }, { date: "2026-10-01" }],
+              classes: [
+                { id: "301", name: "301", teacher: "歐玲礽", lessons: [{ unit: "U1", main: "英淳", asst1: "怡婷", asst2: "芊芊" }, { unit: "U2", main: "美靜", asst1: "方盈", asst2: "英淳" }, { unit: "U3", main: "芊芊", asst1: "玉伶", asst2: "方盈" }] },
+                { id: "302", name: "302", teacher: "張郁雯", lessons: [{ unit: "U1", main: "珍華", asst1: "美靜", asst2: "瑞夫" }, { unit: "U3", main: "小棻", asst1: "玉伶", asst2: "珍華" }, { unit: "U2", main: "怡婷", asst1: "珍華", asst2: "瑞夫" }] }
+              ]
+            },
+            { id: "g2", title: "二年級班級區塊", dates: [{ date: "2026-10-07" }, { date: "2026-10-08" }, { date: "2026-10-14" }],
+              classes: [
+                { id: "201", name: "201", teacher: "許媖華", lessons: [{ unit: "U1", main: "方盈", asst1: "瑋瑜", asst2: "美靜" }, { unit: "U3", main: "芊芊", asst1: "玉伶", asst2: "瑞夫" }, { unit: "U2", main: "美靜", asst1: "英淳", asst2: "方盈" }] },
+                { id: "202", name: "202", teacher: "鄭佳宜", lessons: [{ unit: "U1", main: "珍華", asst1: "玉伶", asst2: "小棻" }, { unit: "U2", main: "怡婷", asst1: "英淳", asst2: "瑋瑜" }, { unit: "U3", main: "小棻", asst1: "珍華", asst2: "瑋瑜" }] }
+              ]
+            },
+            { id: "g1", title: "一年級班級區塊", dates: [{ date: "2026-10-15" }, { date: "2026-10-21" }, { date: "2026-10-22" }],
+              classes: [
+                { id: "101", name: "101", teacher: "游安淇", lessons: [{ unit: "U1", main: "方盈", asst1: "芊芊", asst2: "瑞夫" }, { unit: "U2", main: "美靜", asst1: "瑋瑜", asst2: "英淳" }, { unit: "U3", main: "芊芊", asst1: "瑋瑜", asst2: "英淳" }] },
+                { id: "102", name: "102", teacher: "楊淳棻", lessons: [{ unit: "U1", main: "珍華", asst1: "怡婷", asst2: "玉伶" }, { unit: "U3", main: "小棻", asst1: "方盈", asst2: "玉伶" }, { unit: "U2", main: "瑞夫", asst1: "怡婷", asst2: "小棻" }] }
+              ]
+            },
+            { id: "g4", title: "四年級班級區塊", dates: [{ date: "2026-11-13" }, { date: "2026-11-18" }, { date: "2026-11-20" }],
+              classes: [
+                { id: "401", name: "401", teacher: "陳淑莞", lessons: [{ unit: "U2", main: "怡婷", asst1: "芊芊", asst2: "健庭" }, { unit: "U1", main: "珍華", asst1: "美靜", asst2: "方盈" }, { unit: "U3", main: "芊芊", asst1: "健庭", asst2: "怡婷" }] },
+                { id: "402", name: "402", teacher: "魏伶珍", lessons: [{ unit: "U1", main: "英淳", asst1: "玉伶", asst2: "瑞夫" }, { unit: "U3", main: "小棻", asst1: "玉伶", asst2: "英淳" }, { unit: "U2", main: "瑞夫", asst1: "珍華", asst2: "瑋瑜" }] }
+              ]
+            },
+            { id: "g5", title: "五年級班級區塊", dates: [{ date: "2026-11-25" }, { date: "2026-11-26" }, { date: "2026-11-27" }],
+              classes: [
+                { id: "501", name: "501", teacher: "盧仕純", lessons: [{ unit: "U1", main: "方盈", asst1: "小棻", asst2: "玉伶" }, { unit: "U2", main: "怡婷", asst1: "美靜", asst2: "瑞夫" }, { unit: "U3", main: "小棻", asst1: "健庭", asst2: "芊芊" }] },
+                { id: "502", name: "502", teacher: "蔡銘益", lessons: [{ unit: "U1", main: "英淳", asst1: "瑋瑜", asst2: "珍華" }, { unit: "U3", main: "芊芊", asst1: "瑋瑜", asst2: "玉伶" }, { unit: "U2", main: "瑞夫", asst1: "美靜", asst2: "瑋瑜" }] }
+              ]
+            },
+            { id: "g6", title: "六年級班級區塊", dates: [{ date: "2026-12-03" }, { date: "2026-12-09" }, { date: "2026-12-10" }],
+              classes: [
+                { id: "601", name: "601", teacher: "曾玉婷", lessons: [{ unit: "U2", main: "美靜", asst1: "瑋瑜", asst2: "珍華" }, { unit: "U1", main: "英淳", asst1: "美靜", asst2: "方盈" }, { unit: "U3", main: "芊芊", asst1: "玉伶", asst2: "方盈" }] },
+                { id: "602", name: "602", teacher: "曾文巍", lessons: [{ unit: "U3", main: "小棻", asst1: "怡婷", asst2: "英淳" }, { unit: "U1", main: "珍華", asst1: "小棻", asst2: "瑋瑜" }, { unit: "U2", main: "瑞夫", asst1: "怡婷", asst2: "小棻" }] }
+              ]
+            }
+        ];
+
+        const App = {
+            setup() {
+                const currentTab = ref('home');
+                const tabs = [
+                    { id: 'home', label: '首頁與佈告欄', icon: 'fas fa-home' },
+                    { id: 'schedule', label: '班表查詢', icon: 'fas fa-search' },
+                    { id: 'hours', label: '時數查詢', icon: 'fas fa-chart-bar' },
+                    { id: 'admin', label: '後臺管理', icon: 'fas fa-cogs' }
+                ];
+                
+                const store = reactive({ schedule: [], bulletin: [], activities: [], lastUpdated: '' });
+
+                const todayDate = computed(() => {
+                    const d = new Date();
+                    return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+                });
+
+                const getWeekday = (dateStr) => {
+                    if (!dateStr) return '';
+                    return ['(日)', '(一)', '(二)', '(三)', '(四)', '(五)', '(六)'][new Date(dateStr).getDay()] || '';
+                };
+
+                const loadData = () => {
+                    const localData = localStorage.getItem('astronomyData115_v3');
+                    if (localData) {
+                        try {
+                            const parsed = JSON.parse(localData);
+                            store.schedule = parsed.schedule || defaultScheduleData;
+                            store.bulletin = parsed.bulletin || defaultBulletin;
+                            store.activities = parsed.activities || defaultActivities;
+                            store.lastUpdated = parsed.lastUpdated || '';
+                        } catch(e) {}
+                    } else {
+                        store.schedule = JSON.parse(JSON.stringify(defaultScheduleData));
+                        store.bulletin = JSON.parse(JSON.stringify(defaultBulletin));
+                        store.activities = JSON.parse(JSON.stringify(defaultActivities));
+                    }
+                };
+
+                // === 查詢邏輯 ===
+                const queryType = ref('grade'); 
+                const queryValue = ref('all');
+
+                const flatSchedule = computed(() => {
+                    const flat = [];
+                    store.schedule.forEach(group => {
+                        group.classes.forEach(cls => {
+                            cls.lessons.forEach((lesson, index) => {
+                                flat.push({
+                                    gradeId: group.id, gradeTitle: group.title, className: cls.name, teacher: cls.teacher,
+                                    date: group.dates[index]?.date || '', unit: lesson.unit,
+                                    main: lesson.main ? lesson.main.trim() : '', 
+                                    asst1: lesson.asst1 ? lesson.asst1.trim() : '', 
+                                    asst2: lesson.asst2 ? lesson.asst2.trim() : ''
+                                });
+                            });
+                        });
+                    });
+                    return flat.sort((a, b) => new Date(a.date) - new Date(b.date));
+                });
+
+                const gradeList = computed(() => store.schedule.map(g => ({ id: g.id, title: g.title })));
+                const classList = computed(() => {
+                    const classes = new Set();
+                    store.schedule.forEach(g => g.classes.forEach(c => classes.add(c.name)));
+                    return Array.from(classes).sort();
+                });
+
+                watch(queryType, (newVal) => {
+                    if (newVal === 'grade') queryValue.value = 'all';
+                    else if (newVal === 'class') queryValue.value = classList.value[0] || '';
+                    else if (newVal === 'volunteer') queryValue.value = volunteerList.value[0] || '';
+                });
+
+                const filteredSchedule = computed(() => {
+                    if (queryType.value === 'grade') {
+                        if (queryValue.value === 'all') return flatSchedule.value;
+                        return flatSchedule.value.filter(s => s.gradeId === queryValue.value);
+                    }
+                    if (queryType.value === 'class') return flatSchedule.value.filter(s => s.className === queryValue.value);
+                    if (queryType.value === 'volunteer') return flatSchedule.value.filter(s => s.main === queryValue.value || s.asst1 === queryValue.value || s.asst2 === queryValue.value);
+                    return [];
+                });
+
+                const isHighlighted = (name) => {
+                    return queryType.value === 'volunteer' && queryValue.value === (name ? name.trim() : '');
+                };
+
+                const totalClassesCount = computed(() => {
+                    let count = 0; store.schedule.forEach(g => count += g.classes.length); return count;
+                });
+
+                // === 圖表邏輯 ===
+                const selectedVolunteerForChart = ref('');
+                let allChartInst = null;
+                let indivChartInst = null;
+
+                const calculatedStats = computed(() => {
+                    const stats = {};
+                    flatSchedule.value.forEach(s => {
+                        ['main', 'asst1', 'asst2'].forEach(role => {
+                            const name = s[role] ? s[role].trim() : '';
+                            if (name && name !== '') {
+                                if (!stats[name]) stats[name] = { main: 0, asst: 0 };
+                                if (role === 'main') stats[name].main++; else stats[name].asst++;
+                            }
+                        });
+                    });
+                    return stats;
+                });
+
+                const volunteerList = computed(() => Object.keys(calculatedStats.value).sort());
+
+                const renderCharts = () => {
+                    Chart.defaults.color = '#1e3a8a';
+                    Chart.defaults.font.family = "'Nunito', 'Noto Sans TC', sans-serif";
+                    Chart.defaults.font.weight = 'bold';
+                    
+                    const stats = calculatedStats.value;
+                    const labelsAll = Object.keys(stats).sort();
+                    const mainAll = labelsAll.map(n => stats[n].main);
+                    const asstAll = labelsAll.map(n => stats[n].asst);
+
+                    // 1. 全體 (下)
+                    const ctxAll = document.getElementById('allHoursChart');
+                    if (ctxAll) {
+                        if (allChartInst) allChartInst.destroy();
+                        allChartInst = new Chart(ctxAll, {
+                            type: 'bar',
+                            data: {
+                                labels: labelsAll,
+                                datasets: [
+                                    { label: '主講時數', data: mainAll, backgroundColor: '#ef4444', borderRadius: 4 },
+                                    { label: '助教時數', data: asstAll, backgroundColor: '#3b82f6', borderRadius: 4 }
+                                ]
+                            },
+                            options: {
+                                responsive: true, maintainAspectRatio: false,
+                                scales: { 
+                                    y: { stacked: true, beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { stepSize: 1, precision: 0 } }, 
+                                    x: { stacked: true, grid: { display: false } } 
+                                }
+                            }
+                        });
+                    }
+
+                    // 2. 個人 (上)
+                    const ctxIndiv = document.getElementById('indivHoursChart');
+                    if (ctxIndiv && selectedVolunteerForChart.value) {
+                        if (indivChartInst) indivChartInst.destroy();
+                        const vName = selectedVolunteerForChart.value;
+                        const vData = stats[vName] || { main: 0, asst: 0 };
+                        indivChartInst = new Chart(ctxIndiv, {
+                            type: 'bar',
+                            data: {
+                                labels: [vName],
+                                datasets: [
+                                    { label: '主講時數', data: [vData.main], backgroundColor: '#ef4444', maxBarThickness: 60, borderRadius: 4 },
+                                    { label: '助教時數', data: [vData.asst], backgroundColor: '#3b82f6', maxBarThickness: 60, borderRadius: 4 }
+                                ]
+                            },
+                            options: {
+                                responsive: true, maintainAspectRatio: false,
+                                plugins: { legend: { display: true } },
+                                scales: { 
+                                    y: { stacked: true, beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { stepSize: 1, precision: 0 } }, 
+                                    x: { stacked: true, grid: { display: false } } 
+                                }
+                            }
+                        });
+                    }
+                };
+
+                watch([currentTab, selectedVolunteerForChart], () => {
+                    if (currentTab.value === 'hours') {
+                        nextTick(() => renderCharts());
+                    }
+                });
+
+                // === 後臺管理 ===
+                const isAdmin = ref(false);
+                const adminPwd = ref('');
+                const loginError = ref('');
+                const toastMsg = ref('');
+
+                const showToast = (msg) => {
+                    toastMsg.value = msg;
+                    setTimeout(() => { toastMsg.value = ''; }, 3000);
+                };
+
+                const loginAdmin = () => {
+                    if (adminPwd.value === '3020') {
+                        isAdmin.value = true;
+                        loginError.value = '';
+                        adminPwd.value = '';
+                    } else {
+                        loginError.value = '登入失敗，密碼錯誤。';
+                    }
+                };
+
+                const forgotPassword = () => {
+                    showToast('已發送密碼重置信件至您的信箱 b89324@gmail.com，請查收！');
+                };
+
+                const handleImageDrop = (e, act) => {
+                    const files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+                    if (!files || files.length === 0) return;
+                    if (!act.images) act.images = [];
+                    Array.from(files).forEach(file => {
+                        if (!file.type.match('image.*')) return;
+                        const reader = new FileReader();
+                        reader.onload = (event) => { act.images.push(event.target.result); };
+                        reader.readAsDataURL(file);
+                    });
+                };
+
+                const saveDataToLocal = () => {
+                    try {
+                        store.lastUpdated = new Date().toLocaleString();
+                        localStorage.setItem('astronomyData115_v3', JSON.stringify({
+                            schedule: store.schedule,
+                            bulletin: store.bulletin,
+                            activities: store.activities,
+                            lastUpdated: store.lastUpdated
+                        }));
+                        showToast('所有變更已成功儲存！');
+                    } catch (e) {
+                        alert('儲存失敗，圖片檔案可能過大。');
+                    }
+                };
+
+                const exportJson = () => {
+                    const data = {
+                        version: "v3",
+                        exportAt: new Date().toISOString(),
+                        schedule: store.schedule,
+                        bulletin: store.bulletin,
+                        activities: store.activities,
+                        lastUpdated: store.lastUpdated
+                    };
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `西門晨光天文備份_${todayDate.value.replace(/\//g, '')}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                };
+
+                const importJson = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const parsed = JSON.parse(event.target.result);
+                            if (parsed.schedule) {
+                                store.schedule = parsed.schedule;
+                                store.bulletin = parsed.bulletin || [];
+                                store.activities = parsed.activities || [];
+                                store.lastUpdated = parsed.lastUpdated || new Date().toLocaleString();
+                                saveDataToLocal();
+                                showToast('備份檔匯入成功並已自動儲存！');
+                            }
+                        } catch (err) {
+                            alert("匯入失敗，請確認上傳的是正確的備份 JSON 檔案。");
+                        }
+                    };
+                    reader.readAsText(file);
+                    e.target.value = '';
+                };
+
+                onMounted(() => { loadData(); });
+
+                return {
+                    tabs, currentTab, store, todayDate, getWeekday,
+                    queryType, queryValue, gradeList, classList, volunteerList, filteredSchedule, totalClassesCount, isHighlighted,
+                    selectedVolunteerForChart, calculatedStats,
+                    isAdmin, adminPwd, loginError, loginAdmin, forgotPassword,
+                    handleImageDrop, toastMsg, saveDataToLocal, exportJson, importJson
+                };
+            }
+        };
+
+        createApp(App).mount('#app');
+    </script>
+</body>
+</html>
