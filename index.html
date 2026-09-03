@@ -19,14 +19,12 @@
     <style>
         body {
             font-family: 'Nunito', 'Noto Sans TC', sans-serif;
-            background-color: #fefce8; /* 淡黃色溫暖背景 */
+            background-color: #fefce8;
             color: #1e1b4b;
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
         }
-        
-        /* 淺色星空背景點綴 */
         .stars {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
             background-image: 
@@ -37,37 +35,24 @@
             background-size: 300px 300px;
             pointer-events: none;
         }
-
-        /* 質感卡片 */
         .light-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(251, 191, 36, 0.4);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
         }
-        
         .custom-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
         .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(251, 191, 36, 0.6); border-radius: 10px; }
-        
         .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; }
-
-        /* 公告欄與班表表格樣式 (藍白專業風格) */
         .blue-table th, .blue-table td { padding: 12px; border: 1px solid #e2e8f0; }
         .blue-table th { background: #1e3a8a; color: #ffffff; font-weight: 700; white-space: nowrap; }
         .blue-table tbody tr:nth-child(even) { background: #f8fafc; }
         .blue-table tbody tr:hover { background: #eff6ff; }
-
-        /* 查詢者凸顯特效 */
         .highlight-volunteer {
-            background: #fef08a !important;
-            color: #854d0e !important;
-            font-weight: 900 !important;
-            border: 2px solid #eab308 !important;
-            border-radius: 8px;
-            padding: 2px 8px;
-            display: inline-block;
+            background: #fef08a !important; color: #854d0e !important; font-weight: 900 !important;
+            border: 2px solid #eab308 !important; border-radius: 8px; padding: 2px 8px; display: inline-block;
             box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
         }
     </style>
@@ -77,7 +62,7 @@
     
     <div id="app" class="flex flex-col min-h-screen max-w-7xl mx-auto px-4 md:px-6 py-6 relative z-10">
         
-        <!-- Header 導覽列 (綠斗篷小王子 Logo) -->
+        <!-- Header 導覽列 -->
         <header class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 bg-white/90 p-4 rounded-3xl shadow-sm border border-amber-200">
             <div class="flex items-center gap-4">
                 <div class="relative w-16 h-16 shrink-0">
@@ -104,16 +89,13 @@
         <main class="flex-1">
             <transition name="fade" mode="out-in">
                 
-                <!-- ================== TAB 1: 首頁 ================== -->
+                <!-- TAB 1: 首頁 -->
                 <div v-if="currentTab === 'home'" key="home" class="space-y-8">
-                    
-                    <!-- 第一層：雲端檔案下載 (置頂) & 佈告欄 -->
                     <div class="light-card rounded-3xl p-6 md:p-8 space-y-6">
                         <div class="text-center">
                             <a href="https://drive.google.com/drive/folders/1jzFMChchmz8mPAu64sBDpxN0O7H8H4d3?usp=drive_link" target="_blank" 
                                class="inline-flex items-center gap-3 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-white font-black px-8 py-3.5 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
-                                <i class="fas fa-cloud-download-alt text-xl"></i>
-                                下載本學期雲端教學檔案
+                                <i class="fas fa-cloud-download-alt text-xl"></i> 下載本學期雲端教學檔案
                             </a>
                         </div>
 
@@ -146,7 +128,7 @@
                         </div>
                     </div>
 
-                    <!-- 第二層：活動影像紀錄 -->
+                    <!-- 活動影像紀錄 -->
                     <div class="light-card rounded-3xl p-6 md:p-8">
                         <h3 class="text-xl font-black text-indigo-950 mb-4 flex items-center gap-2">
                             <i class="fas fa-camera-retro text-amber-500"></i> 活動影像紀錄
@@ -169,7 +151,7 @@
                         </div>
                     </div>
 
-                    <!-- 第三層：系統觀測站 (滿寬置底) -->
+                    <!-- 系統觀測站 -->
                     <div class="light-card rounded-3xl p-6 md:p-8 border-t-4 border-t-amber-400">
                         <h3 class="text-2xl font-black text-indigo-950 mb-6 flex items-center gap-2">
                             <i class="fas fa-satellite-dish text-indigo-600"></i> 系統觀測站
@@ -195,7 +177,7 @@
                     </div>
                 </div>
 
-                <!-- ================== TAB 2: 班表查詢 ================== -->
+                <!-- TAB 2: 班表查詢 -->
                 <div v-else-if="currentTab === 'schedule'" key="schedule" class="space-y-6">
                     <div class="light-card rounded-3xl p-6 md:p-8">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
@@ -222,7 +204,6 @@
                             </div>
                         </div>
 
-                        <!-- 班表總表 -->
                         <div class="overflow-x-auto custom-scroll rounded-2xl border border-indigo-200 shadow-md bg-white">
                             <table class="w-full text-center text-sm border-collapse">
                                 <thead>
@@ -245,16 +226,9 @@
                                         <td class="p-3 text-xs text-gray-500 font-bold">{{ item.gradeTitle }}</td>
                                         <td class="p-3 font-black text-gray-800">{{ item.className }} <span class="text-xs text-indigo-600">({{ item.teacher }})</span></td>
                                         <td class="p-3"><span class="bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded-md font-bold text-xs">{{ item.unit }}</span></td>
-                                        
-                                        <td class="p-3 border-l border-gray-100 bg-gray-50/50">
-                                            <span :class="{'highlight-volunteer': isHighlighted(item.main)}">{{ item.main || '-' }}</span>
-                                        </td>
-                                        <td class="p-3">
-                                            <span :class="{'highlight-volunteer': isHighlighted(item.asst1)}">{{ item.asst1 || '-' }}</span>
-                                        </td>
-                                        <td class="p-3">
-                                            <span :class="{'highlight-volunteer': isHighlighted(item.asst2)}">{{ item.asst2 || '-' }}</span>
-                                        </td>
+                                        <td class="p-3 border-l border-gray-100 bg-gray-50/50"><span :class="{'highlight-volunteer': isHighlighted(item.main)}">{{ item.main || '-' }}</span></td>
+                                        <td class="p-3"><span :class="{'highlight-volunteer': isHighlighted(item.asst1)}">{{ item.asst1 || '-' }}</span></td>
+                                        <td class="p-3"><span :class="{'highlight-volunteer': isHighlighted(item.asst2)}">{{ item.asst2 || '-' }}</span></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -262,10 +236,8 @@
                     </div>
                 </div>
 
-                <!-- ================== TAB 3: 時數查詢 (個人置頂，全體在下) ================== -->
+                <!-- TAB 3: 時數查詢 -->
                 <div v-else-if="currentTab === 'hours'" key="hours" class="space-y-8">
-                    
-                    <!-- 1. 個人時數查詢 (置頂) -->
                     <div class="light-card rounded-3xl p-6 md:p-8 border-t-4 border-t-amber-400 shadow-md">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                             <h2 class="text-2xl font-black text-indigo-950 flex items-center gap-2">
@@ -284,7 +256,6 @@
                         </div>
                     </div>
 
-                    <!-- 2. 全體志工時數統計 (置底) -->
                     <div class="light-card rounded-3xl p-6 md:p-8 shadow-md">
                         <h2 class="text-2xl font-black text-indigo-950 mb-6 flex items-center gap-2">
                             <i class="fas fa-users text-indigo-600"></i> 全體志工進班時數統計
@@ -295,10 +266,8 @@
                     </div>
                 </div>
 
-                <!-- ================== TAB 4: 後臺管理 ================== -->
+                <!-- TAB 4: 後臺管理 -->
                 <div v-else-if="currentTab === 'admin'" key="admin" class="space-y-6">
-                    
-                    <!-- 登入畫面 (保持空白，密碼為 3020) -->
                     <div v-if="!isAdmin" class="light-card rounded-3xl p-10 max-w-md mx-auto text-center mt-12 shadow-xl border-t-8 border-t-amber-400">
                         <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-600 text-2xl">
                             <i class="fas fa-lock"></i>
@@ -311,12 +280,11 @@
                         <button @click="forgotPassword" class="text-sm font-bold text-indigo-600 hover:underline">忘記密碼？寄送重置信件</button>
                     </div>
 
-                    <!-- 視覺化文書編輯儀表板 (無程式碼) -->
                     <div v-else class="space-y-8">
                         <div class="bg-indigo-950 text-white rounded-3xl p-6 flex flex-col md:flex-row justify-between items-center gap-4 shadow-xl">
                             <div>
                                 <h2 class="text-2xl font-black flex items-center gap-2"><i class="fas fa-user-shield text-amber-400"></i> 指揮中心文書編輯面板</h2>
-                                <p class="text-indigo-200 text-sm mt-1">直接在下方表格中更新內容，無需編寫任何程式碼。並可隨時下載或匯入備份檔。</p>
+                                <p class="text-indigo-200 text-sm mt-1">直接在下方表格中更新內容，照片會自動壓縮，絕不超載！</p>
                             </div>
                             <div class="flex flex-wrap gap-3">
                                 <button @click="saveDataToLocal" class="bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-3 rounded-xl font-black flex items-center gap-2 shadow-md"><i class="fas fa-save"></i> 儲存所有變更</button>
@@ -327,44 +295,32 @@
                             </div>
                         </div>
 
-                        <!-- 1. 班表排班文書編輯 (表格化) -->
+                        <!-- 班表文書編輯 -->
                         <div class="light-card rounded-3xl p-6 md:p-8 space-y-6">
-                            <h3 class="text-xl font-black text-indigo-950 mb-2 flex items-center gap-2"><i class="fas fa-table text-indigo-600"></i> 編輯進班班表 (各梯次與班級師資)</h3>
-                            <p class="text-xs text-gray-500 mb-4">您可以直接在下方表格修改各班級的單元、主講與助教名稱：</p>
-                            
+                            <h3 class="text-xl font-black text-indigo-950 mb-2 flex items-center gap-2"><i class="fas fa-table text-indigo-600"></i> 編輯進班班表</h3>
                             <div v-for="group in store.schedule" :key="group.id" class="bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100 space-y-4">
                                 <h4 class="text-lg font-black text-indigo-900 border-b border-amber-300 pb-1 flex justify-between items-center">
                                     <span>{{ group.title }}</span>
                                     <span class="text-xs font-normal text-gray-500">日期 1: <input v-model="group.dates[0].date" class="bg-white border rounded px-2 py-0.5 text-xs w-28"> | 日期 2: <input v-model="group.dates[1].date" class="bg-white border rounded px-2 py-0.5 text-xs w-28"> | 日期 3: <input v-model="group.dates[2].date" class="bg-white border rounded px-2 py-0.5 text-xs w-28"></span>
                                 </h4>
-                                
                                 <div v-for="cls in group.classes" :key="cls.id" class="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm space-y-3">
                                     <div class="font-bold text-indigo-950 text-base">班級：{{ cls.name }} 班 (導師：{{ cls.teacher }})</div>
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                                         <div v-for="(lesson, lIdx) in cls.lessons" :key="lIdx" class="bg-indigo-50/40 p-3 rounded-lg border border-indigo-100 space-y-2 text-xs">
                                             <div class="font-bold text-indigo-800 flex justify-between items-center">
                                                 <span>第 {{ lIdx+1 }} 次進班</span>
-                                                <input v-model="lesson.unit" placeholder="單元(例:U1)" class="w-16 bg-white border rounded px-1 text-center font-bold">
+                                                <input v-model="lesson.unit" class="w-16 bg-white border rounded px-1 text-center font-bold">
                                             </div>
-                                            <div>
-                                                <span class="text-gray-500">主講:</span>
-                                                <input v-model="lesson.main" placeholder="主講老師" class="w-full bg-white border rounded px-2 py-1 mt-0.5 font-bold">
-                                            </div>
-                                            <div>
-                                                <span class="text-gray-500">助教 1:</span>
-                                                <input v-model="lesson.asst1" placeholder="助教1" class="w-full bg-white border rounded px-2 py-1 mt-0.5">
-                                            </div>
-                                            <div>
-                                                <span class="text-gray-500">助教 2:</span>
-                                                <input v-model="lesson.asst2" placeholder="助教2" class="w-full bg-white border rounded px-2 py-1 mt-0.5">
-                                            </div>
+                                            <div><span class="text-gray-500">主講:</span><input v-model="lesson.main" class="w-full bg-white border rounded px-2 py-1 font-bold"></div>
+                                            <div><span class="text-gray-500">助教 1:</span><input v-model="lesson.asst1" class="w-full bg-white border rounded px-2 py-1"></div>
+                                            <div><span class="text-gray-500">助教 2:</span><input v-model="lesson.asst2" class="w-full bg-white border rounded px-2 py-1"></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 2. 佈告欄文書編輯 -->
+                        <!-- 佈告欄編輯 -->
                         <div class="light-card rounded-3xl p-6 md:p-8">
                             <h3 class="text-xl font-black text-indigo-950 mb-4 flex items-center gap-2"><i class="fas fa-bullhorn text-amber-500"></i> 編輯星際廣播 (佈告欄)</h3>
                             <div class="space-y-3 mb-4">
@@ -380,7 +336,7 @@
                             <button @click="store.bulletin.push({date:'', time:'', location:'', content:'', notes:''})" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-900 font-bold px-4 py-2 rounded-xl text-sm"><i class="fas fa-plus"></i> 新增公告項目</button>
                         </div>
 
-                        <!-- 3. 活動紀錄與拖拉上傳照片 -->
+                        <!-- 活動紀錄與自動壓縮上傳 -->
                         <div class="light-card rounded-3xl p-6 md:p-8">
                             <h3 class="text-xl font-black text-indigo-950 mb-4 flex items-center gap-2"><i class="fas fa-images text-emerald-600"></i> 編輯活動影像紀錄與照片上傳</h3>
                             <div v-for="(act, aIdx) in store.activities" :key="act.id" class="space-y-4 bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100 mb-4">
@@ -391,7 +347,7 @@
                                 <textarea v-model="act.desc" rows="3" placeholder="活動文字敘述..." class="w-full bg-white border border-gray-300 rounded-xl p-3 text-sm"></textarea>
                                 
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">上傳活動照片 (可將多張照片滑鼠拖曳至下方框內)</label>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1">上傳活動照片 (自動壓縮以避免容量超載)</label>
                                     <div class="border-2 border-dashed border-indigo-300 rounded-xl p-6 text-center bg-white hover:bg-indigo-50/50 cursor-pointer relative"
                                          @dragover.prevent @drop.prevent="handleImageDrop($event, act)">
                                         <input type="file" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" @change="handleImageDrop($event, act)">
@@ -414,12 +370,10 @@
             </transition>
         </main>
         
-        <!-- Footer -->
         <footer class="mt-12 text-center text-gray-500 text-xs font-bold py-6 border-t border-gray-200">
             <p>西門晨光天文志工團隊 &copy; 2026. Designed with Anna Liao</p>
         </footer>
 
-        <!-- Toast 通知 -->
         <div v-if="toastMsg" class="fixed bottom-6 right-6 z-[100] bg-emerald-500 text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 font-bold">
             <i class="fas fa-check-circle text-xl"></i> {{ toastMsg }}
         </div>
@@ -430,15 +384,14 @@
         const { createApp, ref, reactive, computed, watch, nextTick, onMounted } = Vue;
 
         const defaultBulletin = [
-            { date: "1/9 (五)", time: "9:00 - 11:30", location: "嘉義市蘭潭國小", content: "新志工培訓", notes: "小菜,珍華/green,怡婷" },
-            { date: "1/13 (二)", time: "9:00 - 12:00", location: "復興國小", content: "114下志工培訓", notes: "中午期末聚餐,討論分組" },
-            { date: "1/20 (二)", time: "13:00 - 16:00", location: "復興國小現場", content: "現場試教", notes: "錄影試教, 1/24前上傳" },
-            { date: "2/26 (四)", time: "9:30 - 11:00", location: "復興國小", content: "期初會議", notes: "" },
-            { date: "3/3 (二)", time: "9:30 - 11:00", location: "嘉義市蘭潭國小", content: "天文增能演講", notes: "走入天文的世界 (吳福河老師)" }
+            { date: "9/4 (五)", time: "18:30 - 20:00", location: "西門實小", content: "天文新志工招募(暫定)", notes: "@all" },
+            { date: "9/8 (二)", time: "9:30 - 11:00", location: "復興國小", content: "115上 期初會議", notes: "@all;討論教具製作" },
+            { date: "9/23 (三)", time: "9:00 - 11:00", location: "嘉義市蘭潭國小", content: "小隊長會議", notes: "領教具" },
+            { date: "9/24 (四)", time: "8:00 - 8:40", location: "西門實小", content: "第一次進班", notes: "@all" }
         ];
 
         const defaultActivities = [
-            { id: 1, title: "114下學期 志工培訓大會", desc: "感謝各位志工熱情參與期初培訓！透過吳老師的精采解說，我們學習到了更多引導孩子們探索宇宙的技巧，期待新學期的到來。", images: [] }
+            { id: 1, title: "115上學期 星際好朋友師培", desc: "感謝各位夥伴熱情參與師資培訓！我們學習到了更多引導孩子們探索宇宙的技巧，期待新學期的到來。", images: [] }
         ];
 
         const defaultScheduleData = [
@@ -503,15 +456,20 @@
                 };
 
                 const loadData = () => {
-                    const localData = localStorage.getItem('astronomyData115_v3');
+                    const localData = localStorage.getItem('astronomyData115_v6');
                     if (localData) {
                         try {
                             const parsed = JSON.parse(localData);
                             store.schedule = parsed.schedule || defaultScheduleData;
-                            store.bulletin = parsed.bulletin || defaultBulletin;
-                            store.activities = parsed.activities || defaultActivities;
+                            store.bulletin = parsed.bulletin && parsed.bulletin.length > 0 ? parsed.bulletin : defaultBulletin;
+                            // 確保 activities 若有儲存則優先讀取，否則帶入預設內容
+                            store.activities = parsed.activities && parsed.activities.length > 0 ? parsed.activities : defaultActivities;
                             store.lastUpdated = parsed.lastUpdated || '';
-                        } catch(e) {}
+                        } catch(e) {
+                            store.schedule = JSON.parse(JSON.stringify(defaultScheduleData));
+                            store.bulletin = JSON.parse(JSON.stringify(defaultBulletin));
+                            store.activities = JSON.parse(JSON.stringify(defaultActivities));
+                        }
                     } else {
                         store.schedule = JSON.parse(JSON.stringify(defaultScheduleData));
                         store.bulletin = JSON.parse(JSON.stringify(defaultBulletin));
@@ -519,7 +477,6 @@
                     }
                 };
 
-                // === 查詢邏輯 ===
                 const queryType = ref('grade'); 
                 const queryValue = ref('all');
 
@@ -572,7 +529,6 @@
                     let count = 0; store.schedule.forEach(g => count += g.classes.length); return count;
                 });
 
-                // === 圖表邏輯 ===
                 const selectedVolunteerForChart = ref('');
                 let allChartInst = null;
                 let indivChartInst = null;
@@ -603,7 +559,6 @@
                     const mainAll = labelsAll.map(n => stats[n].main);
                     const asstAll = labelsAll.map(n => stats[n].asst);
 
-                    // 1. 全體 (下)
                     const ctxAll = document.getElementById('allHoursChart');
                     if (ctxAll) {
                         if (allChartInst) allChartInst.destroy();
@@ -626,7 +581,6 @@
                         });
                     }
 
-                    // 2. 個人 (上)
                     const ctxIndiv = document.getElementById('indivHoursChart');
                     if (ctxIndiv && selectedVolunteerForChart.value) {
                         if (indivChartInst) indivChartInst.destroy();
@@ -659,7 +613,6 @@
                     }
                 });
 
-                // === 後臺管理 ===
                 const isAdmin = ref(false);
                 const adminPwd = ref('');
                 const loginError = ref('');
@@ -684,22 +637,55 @@
                     showToast('已發送密碼重置信件至您的信箱 b89324@gmail.com，請查收！');
                 };
 
+                const compressImage = (file, callback) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 800;
+                            const MAX_HEIGHT = 800;
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                                if (width > MAX_WIDTH) {
+                                    height *= MAX_WIDTH / width;
+                                    width = MAX_WIDTH;
+                                }
+                            } else {
+                                if (height > MAX_HEIGHT) {
+                                    width *= MAX_HEIGHT / height;
+                                    height = MAX_HEIGHT;
+                                }
+                            }
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            callback(canvas.toDataURL('image/jpeg', 0.7));
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                };
+
                 const handleImageDrop = (e, act) => {
                     const files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
                     if (!files || files.length === 0) return;
                     if (!act.images) act.images = [];
                     Array.from(files).forEach(file => {
                         if (!file.type.match('image.*')) return;
-                        const reader = new FileReader();
-                        reader.onload = (event) => { act.images.push(event.target.result); };
-                        reader.readAsDataURL(file);
+                        compressImage(file, (compressedDataUrl) => {
+                            act.images.push(compressedDataUrl);
+                        });
                     });
                 };
 
                 const saveDataToLocal = () => {
                     try {
                         store.lastUpdated = new Date().toLocaleString();
-                        localStorage.setItem('astronomyData115_v3', JSON.stringify({
+                        localStorage.setItem('astronomyData115_v6', JSON.stringify({
                             schedule: store.schedule,
                             bulletin: store.bulletin,
                             activities: store.activities,
@@ -707,13 +693,13 @@
                         }));
                         showToast('所有變更已成功儲存！');
                     } catch (e) {
-                        alert('儲存失敗，圖片檔案可能過大。');
+                        alert('儲存失敗：瀏覽器儲存空間已滿，請刪除部分照片後再試。');
                     }
                 };
 
                 const exportJson = () => {
                     const data = {
-                        version: "v3",
+                        version: "v6",
                         exportAt: new Date().toISOString(),
                         schedule: store.schedule,
                         bulletin: store.bulletin,
