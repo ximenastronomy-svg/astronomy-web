@@ -51,13 +51,12 @@
         .blue-table tbody tr:nth-child(even) { background: #f8fafc; }
         .blue-table tbody tr:hover { background: #eff6ff; }
         
-        /* 年級色彩區分 */
-        .row-g1 { background-color: #fdf2f8 !important; } /* 一年級 粉紅柔色 */
-        .row-g2 { background-color: #fff7ed !important; } /* 二年級 橙黃柔色 */
-        .row-g3 { background-color: #fefce8 !important; } /* 三年級 黃光柔色 */
-        .row-g4 { background-color: #f0fdf4 !important; } /* 四年級 翠綠柔色 */
-        .row-g5 { background-color: #eff6ff !important; } /* 五年級 天藍柔色 */
-        .row-g6 { background-color: #f5f3ff !important; } /* 六年級 紫芋柔色 */
+        .row-g1 { background-color: #fdf2f8 !important; } 
+        .row-g2 { background-color: #fff7ed !important; } 
+        .row-g3 { background-color: #fefce8 !important; } 
+        .row-g4 { background-color: #f0fdf4 !important; } 
+        .row-g5 { background-color: #eff6ff !important; } 
+        .row-g6 { background-color: #f5f3ff !important; } 
 
         .highlight-volunteer {
             background: #fef08a !important; color: #854d0e !important; font-weight: 900 !important;
@@ -223,11 +222,12 @@
                                         <th class="p-2.5 border-l border-indigo-500 bg-indigo-700">主講</th>
                                         <th class="p-2.5">助教 1</th>
                                         <th class="p-2.5">助教 2</th>
+                                        <th class="p-2.5">助教 3</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-if="filteredSchedule.length === 0">
-                                        <td colspan="6" class="py-10 text-indigo-400 font-bold">查無相關排班資料</td>
+                                        <td colspan="7" class="py-10 text-indigo-400 font-bold">查無相關排班資料</td>
                                     </tr>
                                     <tr v-for="(item, idx) in filteredSchedule" :key="idx" :class="['border-b border-gray-100 hover:opacity-90 transition', getRowColorClass(item.gradeId)]">
                                         <td class="p-2.5 font-bold text-indigo-900 whitespace-nowrap">{{ item.shortDate }} <span class="text-[11px] text-gray-500">{{ getWeekday(item.date) }}</span></td>
@@ -242,6 +242,9 @@
                                         </td>
                                         <td class="p-2.5">
                                             <span :class="{'highlight-volunteer': isHighlighted(item.asst2)}">{{ item.asst2 || '-' }}</span>
+                                        </td>
+                                        <td class="p-2.5">
+                                            <span :class="{'highlight-volunteer': isHighlighted(item.asst3)}">{{ item.asst3 || '-' }}</span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -328,6 +331,7 @@
                                             <div><span class="text-gray-500 text-[11px]">主講:</span><input v-model="lesson.main" class="w-full bg-white border rounded px-2 py-0.5 font-bold text-xs"></div>
                                             <div><span class="text-gray-500 text-[11px]">助教 1:</span><input v-model="lesson.asst1" class="w-full bg-white border rounded px-2 py-0.5 text-xs"></div>
                                             <div><span class="text-gray-500 text-[11px]">助教 2:</span><input v-model="lesson.asst2" class="w-full bg-white border rounded px-2 py-0.5 text-xs"></div>
+                                            <div><span class="text-gray-500 text-[11px]">助教 3:</span><input v-model="lesson.asst3" class="w-full bg-white border rounded px-2 py-0.5 text-xs"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -398,20 +402,27 @@
         const { createApp, ref, reactive, computed, watch, nextTick, onMounted } = Vue;
 
         const defaultBulletin = [
-            { date: "9/4 (五)", time: "18:30 - 20:00", location: "西門實小", content: "天文新志工招募(暫定)", notes: "@all" },
-            { date: "9/8 (二)", time: "9:30 - 11:00", location: "復興國小", content: "115上 期初會議", notes: "@all;討論教具製作" },
+            { date: "9/8 (二)", time: "9:30 - 11:00", location: "東區復興國小", content: "115上 期初會議,進班前複習,討論教具製作", notes: "@all" },
+            { date: "9/11 (五)", time: "18:30 - 20:00", location: "西門實小", content: "班親會,天文新志工招募", notes: "@all" },
+            { date: "9/14(一)", time: "9:30 - 11:30", location: "嘉義市蘭潭國小", content: "天文增能演講(西門視訊):太空中心劉小菁處長", notes: "@all" },
             { date: "9/23 (三)", time: "9:00 - 11:00", location: "嘉義市蘭潭國小", content: "小隊長會議", notes: "領教具" },
-            { date: "9/24 (四)", time: "8:00 - 8:40", location: "西門實小", content: "第一次進班", notes: "@all" }
+            { date: "9/24 (四)", time: "8:00 - 8:40", location: "西門實小", content: "本學期第一次進班:3年級", notes: "@all" },
+            { date: "10/05((一)", time: "9:30 - 11:30", location: "嘉義市蘭潭國小", content: "天文增能演講(西門視訊):葉永烜院士", notes: "@all" },
+            { date: "11/17(二)", time: "9:30 - 11:30", location: "嘉義市蘭潭國小", content: "天文增能演講(西門視訊):前科博館孫維新館長", notes: "@all" }
         ];
 
-        // 內建預設活動與圖示 (即使快取存在但照片為空時也會強制帶入)
+        // 同步 1 到 5 號的照片檔名，確保全數正確抓取
         const defaultActivities = [
             { 
                 id: 1, 
                 title: "115上學期 星際好朋友師培", 
-                desc: "感謝各位夥伴熱情參與師資培訓！我們學習到了更多引導孩子們探索宇宙的技巧，期待新學期的到來。", 
+                desc: "感謝各位夥伴熱情參與師資培訓！大家在會議與實作中學習到了更多引導孩子們探索宇宙的技巧，期待新學期的到來。", 
                 images: [
-                    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='160' viewBox='0 0 240 160'><rect width='100%25' height='100%25' fill='%23e0e7ff'/><circle cx='120' cy='70' r='30' fill='%234f46e5'/><text x='50%25' y='130' dominant-baseline='middle' text-anchor='middle' fill='%233730a3' font-size='13' font-family='sans-serif' font-weight='bold'>星際師培活動花絮</text></svg>"
+                    "LINE_NOTE_260903_1.jpg",
+                    "LINE_NOTE_260903_2.jpg",
+                    "LINE_NOTE_260903_3.jpg",
+                    "LINE_NOTE_260903_4.jpg",
+                    "LINE_NOTE_260903_5.jpg"
                 ] 
             }
         ];
@@ -419,38 +430,38 @@
         const defaultScheduleData = [
             { id: "g3", title: "三年級班級區塊", dates: [{ date: "2026-09-24" }, { date: "2026-09-30" }, { date: "2026-10-01" }],
               classes: [
-                { id: "301", name: "301", teacher: "歐玲礽", lessons: [{ unit: "U1", main: "英淳", asst1: "怡婷", asst2: "芊芊" }, { unit: "U2", main: "美靜", asst1: "方盈", asst2: "英淳" }, { unit: "U3", main: "芊芊", asst1: "玉伶", asst2: "方盈" }] },
-                { id: "302", name: "302", teacher: "張郁雯", lessons: [{ unit: "U1", main: "珍華", asst1: "美靜", asst2: "瑞夫" }, { unit: "U3", main: "小棻", asst1: "玉伶", asst2: "珍華" }, { unit: "U2", main: "怡婷", asst1: "珍華", asst2: "瑞夫" }] }
+                { id: "301", name: "301", teacher: "歐玲礽", lessons: [{ unit: "U1", main: "英淳", asst1: "怡婷", asst2: "芊芊", asst3: "" }, { unit: "U2", main: "美靜", asst1: "方盈", asst2: "英淳", asst3: "" }, { unit: "U3", main: "芊芊", asst1: "玉伶", asst2: "方盈", asst3: "小棻" }] },
+                { id: "302", name: "302", teacher: "張郁雯", lessons: [{ unit: "U1", main: "珍華", asst1: "美靜", asst2: "瑞夫", asst3: "" }, { unit: "U3", main: "小棻", asst1: "玉伶", asst2: "珍華", asst3: "瑋瑜" }, { unit: "U2", main: "怡婷", asst1: "珍華", asst2: "瑞夫", asst3: "" }] }
               ]
             },
             { id: "g2", title: "二年級班級區塊", dates: [{ date: "2026-10-07" }, { date: "2026-10-08" }, { date: "2026-10-14" }],
               classes: [
-                { id: "201", name: "201", teacher: "許媖華", lessons: [{ unit: "U1", main: "方盈", asst1: "瑋瑜", asst2: "美靜" }, { unit: "U3", main: "芊芊", asst1: "玉伶", asst2: "瑞夫" }, { unit: "U2", main: "美靜", asst1: "英淳", asst2: "方盈" }] },
-                { id: "202", name: "202", teacher: "鄭佳宜", lessons: [{ unit: "U1", main: "珍華", asst1: "玉伶", asst2: "小棻" }, { unit: "U2", main: "怡婷", asst1: "英淳", asst2: "瑋瑜" }, { unit: "U3", main: "小棻", asst1: "珍華", asst2: "瑋瑜" }] }
+                { id: "201", name: "201", teacher: "許媖華", lessons: [{ unit: "U1", main: "方盈", asst1: "瑋瑜", asst2: "美靜", asst3: "" }, { unit: "U3", main: "芊芊", asst1: "玉伶", asst2: "瑞夫", asst3: "美靜" }, { unit: "U2", main: "美靜", asst1: "英淳", asst2: "方盈", asst3: "" }] },
+                { id: "202", name: "202", teacher: "鄭佳宜", lessons: [{ unit: "U1", main: "珍華", asst1: "玉伶", asst2: "小棻", asst3: "" }, { unit: "U2", main: "怡婷", asst1: "英淳", asst2: "珍華", asst3: "" }, { unit: "U3", main: "小棻", asst1: "珍華", asst2: "瑋瑜", asst3: "玉伶" }] }
               ]
             },
             { id: "g1", title: "一年級班級區塊", dates: [{ date: "2026-10-15" }, { date: "2026-10-21" }, { date: "2026-10-22" }],
               classes: [
-                { id: "101", name: "101", teacher: "游安淇", lessons: [{ unit: "U1", main: "方盈", asst1: "芊芊", asst2: "瑞夫" }, { unit: "U2", main: "美靜", asst1: "瑋瑜", asst2: "英淳" }, { unit: "U3", main: "芊芊", asst1: "瑋瑜", asst2: "英淳" }] },
-                { id: "102", name: "102", teacher: "楊淳棻", lessons: [{ unit: "U1", main: "珍華", asst1: "怡婷", asst2: "玉伶" }, { unit: "U3", main: "小棻", asst1: "方盈", asst2: "玉伶" }, { unit: "U2", main: "瑞夫", asst1: "怡婷", asst2: "小棻" }] }
+                { id: "101", name: "101", teacher: "游安淇", lessons: [{ unit: "U1", main: "方盈", asst1: "芊芊", asst2: "瑞夫", asst3: "" }, { unit: "U2", main: "美靜", asst1: "瑋瑜", asst2: "英淳", asst3: "" }, { unit: "U3", main: "芊芊", asst1: "瑋瑜", asst2: "英淳", asst3: "美靜" }] },
+                { id: "102", name: "102", teacher: "楊淳棻", lessons: [{ unit: "U1", main: "珍華", asst1: "怡婷", asst2: "玉伶", asst3: "" }, { unit: "U3", main: "小棻", asst1: "方盈", asst2: "玉伶", asst3: "" }, { unit: "U2", main: "瑞夫", asst1: "怡婷", asst2: "小棻", asst3: "" }] }
               ]
             },
             { id: "g4", title: "四年級班級區塊", dates: [{ date: "2026-11-13" }, { date: "2026-11-18" }, { date: "2026-11-20" }],
               classes: [
-                { id: "401", name: "401", teacher: "陳淑莞", lessons: [{ unit: "U2", main: "怡婷", asst1: "芊芊", asst2: "健庭" }, { unit: "U1", main: "珍華", asst1: "美靜", asst2: "方盈" }, { unit: "U3", main: "芊芊", asst1: "健庭", asst2: "怡婷" }] },
-                { id: "402", name: "402", teacher: "魏伶珍", lessons: [{ unit: "U1", main: "英淳", asst1: "玉伶", asst2: "瑞夫" }, { unit: "U3", main: "小棻", asst1: "玉伶", asst2: "英淳" }, { unit: "U2", main: "瑞夫", asst1: "珍華", asst2: "瑋瑜" }] }
+                { id: "401", name: "401", teacher: "陳淑莞", lessons: [{ unit: "U3", main: "芊芊", asst1: "瑋瑜", asst2: "健庭", asst3: "珍華" }, { unit: "U1", main: "方盈", asst1: "美靜", asst2: "珍華", asst3: "" }, { unit: "U2", main: "怡婷", asst1: "健庭", asst2: "芊芊", asst3: "" }] },
+                { id: "402", name: "402", teacher: "魏伶珍", lessons: [{ unit: "U1", main: "英淳", asst1: "玉伶", asst2: "瑞夫", asst3: "" }, { unit: "U3", main: "小棻", asst1: "玉伶", asst2: "英淳", asst3: "瑋瑜" }, { unit: "U2", main: "瑞夫", asst1: "珍華", asst2: "英淳", asst3: "" }] }
               ]
             },
             { id: "g5", title: "五年級班級區塊", dates: [{ date: "2026-11-25" }, { date: "2026-11-26" }, { date: "2026-11-27" }],
               classes: [
-                { id: "501", name: "501", teacher: "盧仕純", lessons: [{ unit: "U1", main: "方盈", asst1: "小棻", asst2: "玉伶" }, { unit: "U2", main: "怡婷", asst1: "美靜", asst2: "瑞夫" }, { unit: "U3", main: "小棻", asst1: "健庭", asst2: "芊芊" }] },
-                { id: "502", name: "502", teacher: "蔡銘益", lessons: [{ unit: "U1", main: "英淳", asst1: "瑋瑜", asst2: "珍華" }, { unit: "U3", main: "芊芊", asst1: "瑋瑜", asst2: "玉伶" }, { unit: "U2", main: "瑞夫", asst1: "美靜", asst2: "瑋瑜" }] }
+                { id: "501", name: "501", teacher: "盧仕純", lessons: [{ unit: "U1", main: "方盈", asst1: "小棻", asst2: "玉伶", asst3: "" }, { unit: "U2", main: "怡婷", asst1: "美靜", asst2: "瑞夫", asst3: "" }, { unit: "U3", main: "小棻", asst1: "健庭", asst2: "芊芊", asst3: "" }] },
+                { id: "502", name: "502", teacher: "蔡銘益", lessons: [{ unit: "U1", main: "英淳", asst1: "瑋瑜", asst2: "珍華", asst3: "" }, { unit: "U3", main: "芊芊", asst1: "瑋瑜", asst2: "玉伶", asst3: "" }, { unit: "U2", main: "瑞夫", asst1: "美靜", asst2: "瑋瑜", asst3: "" }] }
               ]
             },
             { id: "g6", title: "六年級班級區塊", dates: [{ date: "2026-12-03" }, { date: "2026-12-09" }, { date: "2026-12-10" }],
               classes: [
-                { id: "601", name: "601", teacher: "曾玉婷", lessons: [{ unit: "U2", main: "美靜", asst1: "瑋瑜", asst2: "珍華" }, { unit: "U1", main: "英淳", asst1: "美靜", asst2: "方盈" }, { unit: "U3", main: "芊芊", asst1: "玉伶", asst2: "方盈" }] },
-                { id: "602", name: "602", teacher: "曾文巍", lessons: [{ unit: "U3", main: "小棻", asst1: "怡婷", asst2: "英淳" }, { unit: "U1", main: "珍華", asst1: "小棻", asst2: "瑋瑜" }, { unit: "U2", main: "瑞夫", asst1: "怡婷", asst2: "小棻" }] }
+                { id: "601", name: "601", teacher: "曾玉婷", lessons: [{ unit: "U2", main: "美靜", asst1: "瑋瑜", asst2: "方盈", asst3: "" }, { unit: "U1", main: "英淳", asst1: "美靜", asst2: "方盈", asst3: "" }, { unit: "U3", main: "芊芊", asst1: "玉伶", asst2: "方盈", asst3: "" }] },
+                { id: "602", name: "602", teacher: "曾文巍", lessons: [{ unit: "U3", main: "小棻", asst1: "怡婷", asst2: "英淳", asst3: "" }, { unit: "U1", main: "珍華", asst1: "小棻", asst2: "瑋瑜", asst3: "" }, { unit: "U2", main: "瑞夫", asst1: "怡婷", asst2: "小棻", asst3: "" }] }
               ]
             }
         ];
@@ -499,14 +510,14 @@
                 };
 
                 const loadData = () => {
-                    const localData = localStorage.getItem('astronomyData115_v9');
+                    // 升級版本號至 v11 以強制重新整理快取
+                    const localData = localStorage.getItem('astronomyData115_v11');
                     if (localData) {
                         try {
                             const parsed = JSON.parse(localData);
                             store.schedule = parsed.schedule || defaultScheduleData;
                             store.bulletin = parsed.bulletin && parsed.bulletin.length > 0 ? parsed.bulletin : defaultBulletin;
                             
-                            // 檢查快取中的 activities 是否存在照片，若無則強制帶入預設內嵌圖片
                             if (parsed.activities && parsed.activities.length > 0) {
                                 store.activities = parsed.activities.map((act, idx) => {
                                     if (!act.images || act.images.length === 0) {
@@ -545,7 +556,8 @@
                                     date: fullDate, shortDate: formatShortDate(fullDate), unit: lesson.unit,
                                     main: lesson.main ? lesson.main.trim() : '', 
                                     asst1: lesson.asst1 ? lesson.asst1.trim() : '', 
-                                    asst2: lesson.asst2 ? lesson.asst2.trim() : ''
+                                    asst2: lesson.asst2 ? lesson.asst2.trim() : '',
+                                    asst3: lesson.asst3 ? lesson.asst3.trim() : ''
                                 });
                             });
                         });
@@ -572,7 +584,7 @@
                         return flatSchedule.value.filter(s => s.gradeId === queryValue.value);
                     }
                     if (queryType.value === 'class') return flatSchedule.value.filter(s => s.className === queryValue.value);
-                    if (queryType.value === 'volunteer') return flatSchedule.value.filter(s => s.main === queryValue.value || s.asst1 === queryValue.value || s.asst2 === queryValue.value);
+                    if (queryType.value === 'volunteer') return flatSchedule.value.filter(s => s.main === queryValue.value || s.asst1 === queryValue.value || s.asst2 === queryValue.value || s.asst3 === queryValue.value);
                     return [];
                 });
 
@@ -591,7 +603,7 @@
                 const calculatedStats = computed(() => {
                     const stats = {};
                     flatSchedule.value.forEach(s => {
-                        ['main', 'asst1', 'asst2'].forEach(role => {
+                        ['main', 'asst1', 'asst2', 'asst3'].forEach(role => {
                             const name = s[role] ? s[role].trim() : '';
                             if (name && name !== '') {
                                 if (!stats[name]) stats[name] = { main: 0, asst: 0 };
@@ -740,7 +752,7 @@
                 const saveDataToLocal = () => {
                     try {
                         store.lastUpdated = new Date().toLocaleString();
-                        localStorage.setItem('astronomyData115_v9', JSON.stringify({
+                        localStorage.setItem('astronomyData115_v11', JSON.stringify({
                             schedule: store.schedule,
                             bulletin: store.bulletin,
                             activities: store.activities,
@@ -754,7 +766,7 @@
 
                 const exportJson = () => {
                     const data = {
-                        version: "v9",
+                        version: "v11",
                         exportAt: new Date().toISOString(),
                         schedule: store.schedule,
                         bulletin: store.bulletin,
