@@ -194,7 +194,7 @@
                                 <select v-model="queryType" class="w-full bg-white border border-indigo-200 rounded-xl p-2 font-bold text-indigo-950 text-xs md:text-sm outline-none">
                                     <option value="grade">依年級梯次查詢</option>
                                     <option value="class">依特定班級查詢</option>
-                                    <option value="volunteer">依志工個人查詢 (自動凸顯)</option>
+                                    <option value="volunteer">依志工個人查詢</option>
                                 </select>
                             </div>
                             <div class="md:col-span-2">
@@ -212,7 +212,41 @@
                             </div>
                         </div>
 
-                        <div class="overflow-x-auto custom-scroll rounded-2xl border border-indigo-200 shadow-md bg-white">
+                        <!-- 矩陣視角 (依年級/班級) -->
+                        <div v-if="queryType === 'grade' || queryType === 'class'" class="space-y-6">
+                            <div v-for="group in filteredGroups" :key="group.id" class="overflow-x-auto rounded-xl shadow-md border border-gray-300 bg-white mb-6">
+                                <table class="w-full text-center text-sm border-collapse">
+                                    <thead>
+                                        <tr class="bg-[#475569] text-white">
+                                            <th class="p-3 border border-gray-400 w-1/4">班級</th>
+                                            <th v-for="(d, dIdx) in group.dates" :key="dIdx" class="p-3 border border-gray-400 w-1/4">
+                                                {{ formatShortDate(d.date) }} <span class="text-xs">{{ getWeekday(d.date) }}</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="cls in group.classes" :key="cls.id">
+                                            <td class="p-3 border border-gray-300 bg-[#64748b] text-white align-middle">
+                                                <div class="font-black text-lg mb-0.5">{{ cls.name }}</div>
+                                                <div class="text-xs font-bold">{{ cls.teacher }}</div>
+                                            </td>
+                                            <td v-for="(lesson, lIdx) in cls.lessons" :key="lIdx" class="p-3 border border-gray-300 align-middle hover:bg-gray-50 transition">
+                                                <div class="font-black text-emerald-600 mb-1.5 text-base">{{ lesson.unit }}</div>
+                                                <div class="font-bold text-orange-600 mb-1">{{ lesson.main || '-' }}</div>
+                                                <div class="text-gray-700 text-xs font-medium space-x-1">
+                                                    <span v-if="lesson.asst1">{{ lesson.asst1 }}</span>
+                                                    <span v-if="lesson.asst2">{{ lesson.asst2 }}</span>
+                                                    <span v-if="lesson.asst3">{{ lesson.asst3 }}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 志工個人視角 -->
+                        <div v-if="queryType === 'volunteer'" class="overflow-x-auto custom-scroll rounded-2xl border border-indigo-200 shadow-md bg-white">
                             <table class="w-full text-center text-xs md:text-sm border-collapse">
                                 <thead>
                                     <tr class="bg-indigo-600 text-white">
@@ -492,7 +526,7 @@
                     if (!dateStr) return '';
                     const parts = dateStr.split('-');
                     if (parts.length >= 3) {
-                        return `${parts[1]}-${parts[2]}`;
+                        return `${parts[1]}/${parts[2]}`;
                     }
                     return dateStr;
                 };
@@ -510,8 +544,8 @@
                 };
 
                 const loadData = () => {
-                    // 升級版本號至 v11 以強制重新整理快取
-                    const localData = localStorage.getItem('astronomyData115_v11');
+                    // 升級版本號至 v12 以強制重新整理快取
+                    const localData = localStorage.getItem('astronomyData115_v12');
                     if (localData) {
                         try {
                             const parsed = JSON.parse(localData);
@@ -578,13 +612,26 @@
                     else if (newVal === 'volunteer') queryValue.value = volunteerList.value[0] || '';
                 });
 
-                const filteredSchedule = computed(() => {
+                // 處理矩陣排版的資料過濾 (供年級與特定班級使用)
+                const filteredGroups = computed(() => {
                     if (queryType.value === 'grade') {
-                        if (queryValue.value === 'all') return flatSchedule.value;
-                        return flatSchedule.value.filter(s => s.gradeId === queryValue.value);
+                        if (queryValue.value === 'all') return store.schedule;
+                        return store.schedule.filter(g => g.id === queryValue.value);
+                    } else if (queryType.value === 'class') {
+                        const matchedGroup = store.schedule.find(g => g.classes.some(c => c.name === queryValue.value));
+                        if (!matchedGroup) return [];
+                        const groupCopy = JSON.parse(JSON.stringify(matchedGroup));
+                        groupCopy.classes = groupCopy.classes.filter(c => c.name === queryValue.value);
+                        return [groupCopy];
                     }
-                    if (queryType.value === 'class') return flatSchedule.value.filter(s => s.className === queryValue.value);
-                    if (queryType.value === 'volunteer') return flatSchedule.value.filter(s => s.main === queryValue.value || s.asst1 === queryValue.value || s.asst2 === queryValue.value || s.asst3 === queryValue.value);
+                    return [];
+                });
+
+                // 處理志工查詢的原始表格資料過濾
+                const filteredSchedule = computed(() => {
+                    if (queryType.value === 'volunteer') {
+                        return flatSchedule.value.filter(s => s.main === queryValue.value || s.asst1 === queryValue.value || s.asst2 === queryValue.value || s.asst3 === queryValue.value);
+                    }
                     return [];
                 });
 
@@ -752,7 +799,7 @@
                 const saveDataToLocal = () => {
                     try {
                         store.lastUpdated = new Date().toLocaleString();
-                        localStorage.setItem('astronomyData115_v11', JSON.stringify({
+                        localStorage.setItem('astronomyData115_v12', JSON.stringify({
                             schedule: store.schedule,
                             bulletin: store.bulletin,
                             activities: store.activities,
@@ -766,7 +813,7 @@
 
                 const exportJson = () => {
                     const data = {
-                        version: "v11",
+                        version: "v12",
                         exportAt: new Date().toISOString(),
                         schedule: store.schedule,
                         bulletin: store.bulletin,
@@ -810,6 +857,7 @@
                 return {
                     tabs, currentTab, store, todayDate, getWeekday, formatShortDate, getRowColorClass,
                     queryType, queryValue, gradeList, classList, volunteerList, filteredSchedule, totalClassesCount, isHighlighted,
+                    filteredGroups,
                     selectedVolunteerForChart, calculatedStats,
                     isAdmin, adminPwd, loginError, loginAdmin, forgotPassword,
                     handleImageDrop, toastMsg, saveDataToLocal, exportJson, importJson
