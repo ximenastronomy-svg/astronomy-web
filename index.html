@@ -46,6 +46,13 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(251, 191, 36, 0.6); border-radius: 10px; }
         .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
         .fade-enter-from, .fade-leave-to { opacity: 0; }
+        
+        /* 強制表格內的人名保持橫向不折行 */
+        .name-span {
+            white-space: nowrap !important;
+            display: inline-block;
+        }
+
         .blue-table th, .blue-table td { padding: 10px 8px; border: 1px solid #e2e8f0; font-size: 13px; }
         .blue-table th { background: #1e3a8a; color: #ffffff; font-weight: 700; white-space: nowrap; }
         .blue-table tbody tr:nth-child(even) { background: #f8fafc; }
@@ -219,24 +226,29 @@
                                     <thead>
                                         <tr class="bg-[#475569] text-white">
                                             <th class="p-3 border border-gray-400 w-1/4">班級</th>
-                                            <th v-for="(d, dIdx) in group.dates" :key="dIdx" class="p-3 border border-gray-400 w-1/4">
-                                                {{ formatShortDate(d.date) }} <span class="text-xs">{{ getWeekday(d.date) }}</span>
+                                            <th v-for="(d, dIdx) in group.dates" :key="dIdx" class="p-2 md:p-3 border border-gray-400 w-1/4 whitespace-nowrap">
+                                                <div class="block md:inline">{{ formatShortDate(d.date) }}</div>
+                                                <div class="block md:inline text-[10px] md:text-xs font-normal md:ml-1 opacity-90">{{ getWeekday(d.date) }}</div>
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="cls in group.classes" :key="cls.id">
-                                            <td class="p-3 border border-gray-300 bg-[#64748b] text-white align-middle">
-                                                <div class="font-black text-lg mb-0.5">{{ cls.name }}</div>
+                                            <td class="p-2 md:p-3 border border-gray-300 bg-[#64748b] text-white align-middle">
+                                                <div class="font-black text-base md:text-lg mb-0.5">{{ cls.name }}</div>
                                                 <div class="text-xs font-bold">{{ cls.teacher }}</div>
                                             </td>
-                                            <td v-for="(lesson, lIdx) in cls.lessons" :key="lIdx" class="p-3 border border-gray-300 align-middle hover:bg-gray-50 transition">
-                                                <div class="font-black text-emerald-600 mb-1.5 text-base">{{ lesson.unit }}</div>
-                                                <div class="font-bold text-orange-600 mb-1">{{ lesson.main || '-' }}</div>
-                                                <div class="text-gray-700 text-xs font-medium space-x-1">
-                                                    <span v-if="lesson.asst1">{{ lesson.asst1 }}</span>
-                                                    <span v-if="lesson.asst2">{{ lesson.asst2 }}</span>
-                                                    <span v-if="lesson.asst3">{{ lesson.asst3 }}</span>
+                                            <td v-for="(lesson, lIdx) in cls.lessons" :key="lIdx" class="p-2 md:p-3 border border-gray-300 align-middle hover:bg-gray-50 transition">
+                                                <div class="font-black text-emerald-600 mb-1.5 text-sm md:text-base">{{ lesson.unit }}</div>
+                                                <!-- 主講人橫書不折行 -->
+                                                <div class="font-bold text-orange-600 mb-1 block">
+                                                    <span class="name-span">{{ lesson.main || '-' }}</span>
+                                                </div>
+                                                <!-- 手機版獨立每行，電腦版維持同一行(md:block 與 md:space-x-1) -->
+                                                <div class="text-gray-700 text-xs font-medium flex flex-col md:block space-y-0.5 md:space-y-0 md:space-x-1">
+                                                    <span v-if="lesson.asst1" class="name-span">{{ lesson.asst1 }}</span>
+                                                    <span v-if="lesson.asst2" class="name-span">{{ lesson.asst2 }}</span>
+                                                    <span v-if="lesson.asst3" class="name-span">{{ lesson.asst3 }}</span>
                                                 </div>
                                             </td>
                                         </tr>
@@ -250,13 +262,13 @@
                             <table class="w-full text-center text-xs md:text-sm border-collapse">
                                 <thead>
                                     <tr class="bg-indigo-600 text-white">
-                                        <th class="p-2.5">日期</th>
-                                        <th class="p-2.5">班級</th>
-                                        <th class="p-2.5">單元</th>
-                                        <th class="p-2.5 border-l border-indigo-500 bg-indigo-700">主講</th>
-                                        <th class="p-2.5">助教 1</th>
-                                        <th class="p-2.5">助教 2</th>
-                                        <th class="p-2.5">助教 3</th>
+                                        <th class="p-1.5 md:p-2.5 whitespace-nowrap">日期</th>
+                                        <th class="p-1.5 md:p-2.5 whitespace-nowrap">班級</th>
+                                        <th class="p-1.5 md:p-2.5 whitespace-nowrap">單元</th>
+                                        <th class="p-1.5 md:p-2.5 border-l border-indigo-500 bg-indigo-700 whitespace-nowrap">主講</th>
+                                        <th class="p-1.5 md:p-2.5 whitespace-nowrap">助教 1</th>
+                                        <th class="p-1.5 md:p-2.5 whitespace-nowrap">助教 2</th>
+                                        <th class="p-1.5 md:p-2.5 whitespace-nowrap">助教 3</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -264,21 +276,26 @@
                                         <td colspan="7" class="py-10 text-indigo-400 font-bold">查無相關排班資料</td>
                                     </tr>
                                     <tr v-for="(item, idx) in filteredSchedule" :key="idx" :class="['border-b border-gray-100 hover:opacity-90 transition', getRowColorClass(item.gradeId)]">
-                                        <td class="p-2.5 font-bold text-indigo-900 whitespace-nowrap">{{ item.shortDate }} <span class="text-[11px] text-gray-500">{{ getWeekday(item.date) }}</span></td>
-                                        <td class="p-2.5 font-black text-gray-900 text-sm">{{ item.className }}</td>
-                                        <td class="p-2.5"><span class="bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded font-bold text-xs">{{ item.unit }}</span></td>
+                                        <!-- 手機版日期與星期分作兩行，電腦版保持同行 -->
+                                        <td class="p-1 md:p-2.5 font-bold text-indigo-900 whitespace-nowrap leading-tight">
+                                            <div class="block md:inline">{{ item.shortDate }}</div>
+                                            <div class="block md:inline text-[10px] md:text-[11px] text-gray-500 font-normal md:ml-1">{{ getWeekday(item.date) }}</div>
+                                        </td>
+                                        <td class="p-1 md:p-2.5 font-black text-gray-900 text-[13px] md:text-sm whitespace-nowrap">{{ item.className }}</td>
+                                        <td class="p-1 md:p-2.5 whitespace-nowrap"><span class="bg-indigo-100 text-indigo-900 px-1.5 md:px-2 py-0.5 rounded font-bold text-xs">{{ item.unit }}</span></td>
                                         
-                                        <td class="p-2.5 border-l border-gray-200 bg-white/60">
-                                            <span :class="{'highlight-volunteer': isHighlighted(item.main)}">{{ item.main || '-' }}</span>
+                                        <!-- 以下名字皆套用 name-span 確保橫書不折行 -->
+                                        <td class="p-1 md:p-2.5 border-l border-gray-200 bg-white/60 whitespace-nowrap">
+                                            <span :class="{'highlight-volunteer': isHighlighted(item.main)}" class="name-span">{{ item.main || '-' }}</span>
                                         </td>
-                                        <td class="p-2.5">
-                                            <span :class="{'highlight-volunteer': isHighlighted(item.asst1)}">{{ item.asst1 || '-' }}</span>
+                                        <td class="p-1 md:p-2.5 whitespace-nowrap">
+                                            <span :class="{'highlight-volunteer': isHighlighted(item.asst1)}" class="name-span">{{ item.asst1 || '-' }}</span>
                                         </td>
-                                        <td class="p-2.5">
-                                            <span :class="{'highlight-volunteer': isHighlighted(item.asst2)}">{{ item.asst2 || '-' }}</span>
+                                        <td class="p-1 md:p-2.5 whitespace-nowrap">
+                                            <span :class="{'highlight-volunteer': isHighlighted(item.asst2)}" class="name-span">{{ item.asst2 || '-' }}</span>
                                         </td>
-                                        <td class="p-2.5">
-                                            <span :class="{'highlight-volunteer': isHighlighted(item.asst3)}">{{ item.asst3 || '-' }}</span>
+                                        <td class="p-1 md:p-2.5 whitespace-nowrap">
+                                            <span :class="{'highlight-volunteer': isHighlighted(item.asst3)}" class="name-span">{{ item.asst3 || '-' }}</span>
                                         </td>
                                     </tr>
                                 </tbody>
