@@ -84,10 +84,17 @@
                     <i class="fas fa-star text-amber-300"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl md:text-3xl font-black text-indigo-950 mb-0.5">西門晨光天文</h1>
-                    <p class="text-indigo-800 text-xs md:text-sm font-bold bg-amber-100/90 inline-block px-3 py-0.5 rounded-full border border-amber-300">
-                        115上學期 • 「真正重要的東西，用眼睛是看不見的。」
-                    </p>
+                    <h1 class="text-xl md:text-3xl font-black text-indigo-950 mb-1 leading-tight">
+                        <span class="text-indigo-600 text-lg md:text-2xl mr-1">115上學期</span><br class="md:hidden">西門晨光天文
+                    </h1>
+                    <div class="flex flex-col items-center md:items-start gap-1.5 mt-2">
+                        <p class="text-indigo-800 text-[13px] md:text-sm font-bold bg-amber-100/90 inline-block px-3 py-1 rounded-full border border-amber-300 leading-snug">
+                            <span class="block md:inline">「真正重要的東西，</span><span class="block md:inline">用眼睛是看不見的。」</span>
+                        </p>
+                        <p class="text-xs font-bold text-gray-500">
+                            <i class="far fa-calendar-alt text-indigo-400"></i> {{ todayDate }}
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -107,25 +114,23 @@
                 <!-- TAB 1: 首頁 -->
                 <div v-if="currentTab === 'home'" key="home" class="space-y-6">
                     <div class="light-card rounded-3xl p-4 md:p-8 space-y-6">
-                        
-                        <!-- 置頂按鈕區 (左: 部落格 | 中: FB社團 | 右: 雲端下載) -->
-                        <div class="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-3 md:gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 max-w-4xl mx-auto">
                             <!-- 左：諸羅城的星空部落格 -->
                             <a href="https://drawsky2017.blogspot.com/" target="_blank" 
-                               class="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black px-5 py-3 rounded-full shadow-lg text-xs md:text-sm transition-all">
-                                <i class="fas fa-blog text-lg"></i> 諸羅城的星空部落格
+                               class="w-full justify-center inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black px-4 py-3 rounded-full shadow-lg text-sm md:text-base transition-all text-center">
+                                <i class="fas fa-blog text-lg shrink-0"></i> 諸羅城的星空部落格
                             </a>
 
                             <!-- 中：西門實小晨光天文 FB 社團 -->
                             <a href="https://www.facebook.com/groups/173470073375799/" target="_blank" 
-                               class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black px-5 py-3 rounded-full shadow-lg text-xs md:text-sm transition-all">
-                                <i class="fab fa-facebook text-lg"></i> 西門實小晨光天文 FB
+                               class="w-full justify-center inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black px-4 py-3 rounded-full shadow-lg text-sm md:text-base transition-all text-center">
+                                <i class="fab fa-facebook text-lg shrink-0"></i> 西門實小晨光天文 FB
                             </a>
 
-                            <!-- 右：下載本學期雲端教學檔案 -->
+                            <!-- 右：教學檔案下載 -->
                             <a href="https://drive.google.com/drive/folders/1jzFMChchmz8mPAu64sBDpxN0O7H8H4d3?usp=drive_link" target="_blank" 
-                               class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-white font-black px-5 py-3 rounded-full shadow-lg text-xs md:text-sm transition-all">
-                                <i class="fas fa-cloud-download-alt text-lg"></i> 下載本學期雲端教學檔案
+                               class="w-full justify-center inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-white font-black px-4 py-3 rounded-full shadow-lg text-sm md:text-base transition-all text-center">
+                                <i class="fas fa-cloud-download-alt text-lg shrink-0"></i> 教學檔案下載
                             </a>
                         </div>
 
@@ -133,7 +138,28 @@
                             <h3 class="text-lg md:text-xl font-black text-indigo-950 mb-3 flex items-center gap-2">
                                 <i class="fas fa-bullhorn text-amber-500"></i> 星際廣播 (佈告欄)
                             </h3>
-                            <div class="overflow-x-auto max-h-[320px] custom-scroll rounded-xl border border-indigo-100 bg-white">
+                            
+                            <!-- 手機版佈告欄 (折疊卡片) -->
+                            <div class="md:hidden flex flex-col gap-2.5">
+                                <div v-for="(item, idx) in store.bulletin" :key="idx" class="bg-white border border-indigo-100 rounded-xl overflow-hidden shadow-sm">
+                                    <div @click="toggleBulletin(idx)" class="p-3.5 flex justify-between items-center cursor-pointer active:bg-gray-50 transition-colors">
+                                        <div class="font-bold text-indigo-900 text-sm truncate pr-2 flex-1">{{ item.content }}</div>
+                                        <div class="text-indigo-400 text-xs shrink-0 flex items-center gap-1.5">
+                                            <span v-if="!expandedBulletins.includes(idx)" class="font-black text-gray-400 tracking-widest">...</span>
+                                            <i class="fas" :class="expandedBulletins.includes(idx) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                        </div>
+                                    </div>
+                                    <div v-show="expandedBulletins.includes(idx)" class="px-4 pb-4 pt-2 border-t border-indigo-50 bg-indigo-50/30 text-xs space-y-2">
+                                        <div class="flex"><span class="w-12 shrink-0 text-gray-500 font-bold">日期</span><span class="text-indigo-900 font-bold">{{ item.date }}</span></div>
+                                        <div class="flex"><span class="w-12 shrink-0 text-gray-500 font-bold">時間</span><span class="text-gray-700">{{ item.time }}</span></div>
+                                        <div class="flex"><span class="w-12 shrink-0 text-gray-500 font-bold">地點</span><span class="text-indigo-800">{{ item.location }}</span></div>
+                                        <div class="flex" v-if="item.notes"><span class="w-12 shrink-0 text-gray-500 font-bold">備註</span><span class="text-gray-600">{{ item.notes }}</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 電腦版佈告欄 (表格) -->
+                            <div class="hidden md:block overflow-x-auto max-h-[320px] custom-scroll rounded-xl border border-indigo-100 bg-white">
                                 <table class="w-full text-left blue-table text-xs md:text-sm">
                                     <thead>
                                         <tr>
@@ -188,12 +214,12 @@
                         </h3>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 text-center">
-                                <span class="text-gray-500 text-xs font-bold block mb-1">今日日期</span>
-                                <span class="font-mono text-indigo-950 text-base md:text-lg font-black">{{ todayDate }}</span>
+                                <span class="text-gray-500 text-xs font-bold block mb-1">到訪人數</span>
+                                <span class="font-mono text-indigo-950 text-base md:text-lg font-black">{{ store.visitorCount }} <span class="text-xs text-gray-500 font-normal">人</span></span>
                             </div>
                             <div class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 text-center">
                                 <span class="text-gray-500 text-xs font-bold block mb-1">最後更新</span>
-                                <span class="font-mono text-emerald-600 text-sm md:text-base font-black">2026.9.5</span>
+                                <span class="font-mono text-emerald-600 text-sm md:text-base font-black">{{ store.lastUpdated || '尚無紀錄' }}</span>
                             </div>
                             <div class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 text-center">
                                 <span class="text-gray-500 text-xs font-bold block mb-1">全校進班</span>
@@ -389,6 +415,15 @@
                             </div>
                         </div>
 
+                        <!-- 系統參數設定 -->
+                        <div class="light-card rounded-3xl p-4 md:p-6 space-y-4">
+                            <h3 class="text-base md:text-lg font-black text-indigo-950 mb-2 flex items-center gap-2"><i class="fas fa-cog text-gray-600"></i> 系統參數設定</h3>
+                            <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 flex flex-col sm:flex-row sm:items-center gap-3">
+                                <label class="font-bold text-indigo-900 text-sm">累積到訪人數：</label>
+                                <input type="number" v-model.number="store.visitorCount" class="bg-white border border-indigo-200 rounded-lg px-3 py-1.5 font-bold text-indigo-950 w-32 outline-none focus:border-amber-400 text-sm">
+                            </div>
+                        </div>
+
                         <!-- 班表文書編輯 -->
                         <div class="light-card rounded-3xl p-4 md:p-6 space-y-4">
                             <h3 class="text-base md:text-lg font-black text-indigo-950 mb-2 flex items-center gap-2"><i class="fas fa-table text-indigo-600"></i> 編輯進班班表</h3>
@@ -567,7 +602,7 @@
                     { id: 'admin', label: '後臺管理', icon: 'fas fa-cogs' }
                 ];
                 
-                const store = reactive({ schedule: [], bulletin: [], activities: [], lastUpdated: '' });
+                const store = reactive({ schedule: [], bulletin: [], activities: [], lastUpdated: '2026/09/05', visitorCount: 1234 });
 
                 const todayDate = computed(() => {
                     const d = new Date();
@@ -601,6 +636,7 @@
                 };
 
                 const loadData = () => {
+                    // 升級版本號至 v12 以強制重新整理快取
                     const localData = localStorage.getItem('astronomyData115_v12');
                     if (localData) {
                         try {
@@ -619,16 +655,19 @@
                                 store.activities = defaultActivities;
                             }
 
-                            store.lastUpdated = parsed.lastUpdated || '';
+                            store.lastUpdated = parsed.lastUpdated || '2026/09/05';
+                            store.visitorCount = parsed.visitorCount !== undefined ? parsed.visitorCount : 1234;
                         } catch(e) {
                             store.schedule = JSON.parse(JSON.stringify(defaultScheduleData));
                             store.bulletin = JSON.parse(JSON.stringify(defaultBulletin));
                             store.activities = JSON.parse(JSON.stringify(defaultActivities));
+                            store.visitorCount = 1234;
                         }
                     } else {
                         store.schedule = JSON.parse(JSON.stringify(defaultScheduleData));
                         store.bulletin = JSON.parse(JSON.stringify(defaultBulletin));
                         store.activities = JSON.parse(JSON.stringify(defaultActivities));
+                        store.visitorCount = 1234;
                     }
                 };
 
@@ -804,26 +843,12 @@
                 const loginError = ref('');
                 const toastMsg = ref('');
 
-                // 佈告欄拖曳邏輯
-                const draggedBulletinIdx = ref(null);
-                const dragStartBulletin = (idx) => { draggedBulletinIdx.value = idx; };
-                const dropBulletin = (targetIdx) => {
-                    if (draggedBulletinIdx.value !== null && draggedBulletinIdx.value !== targetIdx) {
-                        const item = store.bulletin.splice(draggedBulletinIdx.value, 1)[0];
-                        store.bulletin.splice(targetIdx, 0, item);
-                    }
-                    draggedBulletinIdx.value = null;
-                };
-
-                // 活動照片拖曳邏輯
-                const draggedImg = ref({ actId: null, idx: null });
-                const dragStartImg = (actId, idx) => { draggedImg.value = { actId, idx }; };
-                const dropImg = (act, targetIdx) => {
-                    if (draggedImg.value.actId === act.id && draggedImg.value.idx !== null && draggedImg.value.idx !== targetIdx) {
-                        const item = act.images.splice(draggedImg.value.idx, 1)[0];
-                        act.images.splice(targetIdx, 0, item);
-                    }
-                    draggedImg.value = { actId: null, idx: null };
+                // 佈告欄手機版展開控制
+                const expandedBulletins = ref([]);
+                const toggleBulletin = (idx) => {
+                    const pos = expandedBulletins.value.indexOf(idx);
+                    if (pos !== -1) expandedBulletins.value.splice(pos, 1);
+                    else expandedBulletins.value.push(idx);
                 };
 
                 const showToast = (msg) => {
@@ -892,12 +917,13 @@
 
                 const saveDataToLocal = () => {
                     try {
-                        store.lastUpdated = "2026.9.5";
+                        store.lastUpdated = new Date().toLocaleString();
                         localStorage.setItem('astronomyData115_v12', JSON.stringify({
                             schedule: store.schedule,
                             bulletin: store.bulletin,
                             activities: store.activities,
-                            lastUpdated: store.lastUpdated
+                            lastUpdated: store.lastUpdated,
+                            visitorCount: store.visitorCount
                         }));
                         showToast('所有變更已成功儲存！');
                     } catch (e) {
@@ -912,7 +938,8 @@
                         schedule: store.schedule,
                         bulletin: store.bulletin,
                         activities: store.activities,
-                        lastUpdated: "2026.9.5"
+                        lastUpdated: store.lastUpdated,
+                        visitorCount: store.visitorCount
                     };
                     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
@@ -935,6 +962,7 @@
                                 store.bulletin = parsed.bulletin || [];
                                 store.activities = parsed.activities || [];
                                 store.lastUpdated = parsed.lastUpdated || new Date().toLocaleString();
+                                store.visitorCount = parsed.visitorCount !== undefined ? parsed.visitorCount : store.visitorCount;
                                 saveDataToLocal();
                                 showToast('備份檔匯入成功並已自動儲存！');
                             }
@@ -951,11 +979,11 @@
                 return {
                     tabs, currentTab, store, todayDate, getWeekday, formatShortDate, getRowColorClass,
                     queryType, queryValue, gradeList, classList, volunteerList, filteredSchedule, totalClassesCount, isHighlighted,
-                    filteredGroups, getUnitBadgeClass, getMainSpeakerClass,
+                    filteredGroups,
                     selectedVolunteerForChart, calculatedStats,
                     isAdmin, adminPwd, loginError, loginAdmin, forgotPassword,
                     handleImageDrop, toastMsg, saveDataToLocal, exportJson, importJson,
-                    dragStartBulletin, dropBulletin, dragStartImg, dropImg
+                    expandedBulletins, toggleBulletin
                 };
             }
         };
