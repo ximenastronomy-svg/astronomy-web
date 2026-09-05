@@ -219,7 +219,7 @@
                             </div>
                             <div class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 text-center">
                                 <span class="text-gray-500 text-xs font-bold block mb-1">最後更新</span>
-                                <span class="font-mono text-emerald-600 text-sm md:text-base font-black">{{ store.lastUpdated || '尚無紀錄' }}</span>
+                                <span class="font-mono text-emerald-600 text-sm md:text-base font-black">{{ store.lastUpdated || '2026/9/5 下午1:07:37' }}</span>
                             </div>
                             <div class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 text-center">
                                 <span class="text-gray-500 text-xs font-bold block mb-1">全校進班</span>
@@ -407,7 +407,7 @@
                                 <p class="text-indigo-200 text-xs mt-1">直接在下方修改內容，照片具備自動壓縮功能。</p>
                             </div>
                             <div class="flex flex-wrap gap-2">
-                                <button @click="saveDataToLocal" class="bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2.5 rounded-xl font-black text-xs md:text-sm flex items-center gap-1.5 shadow-md"><i class="fas fa-save"></i> 儲存變更</button>
+                                <button @click="saveDataToLocal(false)" class="bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2.5 rounded-xl font-black text-xs md:text-sm flex items-center gap-1.5 shadow-md"><i class="fas fa-save"></i> 儲存變更</button>
                                 <button @click="exportJson" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center gap-1.5"><i class="fas fa-download"></i> 下載備份</button>
                                 <button @click="$refs.importInput.click()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-2.5 rounded-xl font-bold text-xs md:text-sm flex items-center gap-1.5"><i class="fas fa-upload"></i> 匯入備份</button>
                                 <input type="file" ref="importInput" @change="importJson" class="hidden" accept=".json">
@@ -602,7 +602,8 @@
                     { id: 'admin', label: '後臺管理', icon: 'fas fa-cogs' }
                 ];
                 
-                const store = reactive({ schedule: [], bulletin: [], activities: [], lastUpdated: '2026/09/05', visitorCount: 1234 });
+                // 初始化 visitorCount 為 5，並設定預設時間
+                const store = reactive({ schedule: [], bulletin: [], activities: [], lastUpdated: '2026/9/5 下午1:07:37', visitorCount: 5 });
 
                 const todayDate = computed(() => {
                     const d = new Date();
@@ -636,7 +637,6 @@
                 };
 
                 const loadData = () => {
-                    // 升級版本號至 v12 以強制重新整理快取
                     const localData = localStorage.getItem('astronomyData115_v12');
                     if (localData) {
                         try {
@@ -655,19 +655,20 @@
                                 store.activities = defaultActivities;
                             }
 
-                            store.lastUpdated = parsed.lastUpdated || '2026/09/05';
-                            store.visitorCount = parsed.visitorCount !== undefined ? parsed.visitorCount : 1234;
+                            // 讀取最後更新時間與拜訪人數 (如果沒有，給定預設值)
+                            store.lastUpdated = parsed.lastUpdated || '2026/9/5 下午1:07:37';
+                            store.visitorCount = parsed.visitorCount !== undefined ? parsed.visitorCount : 5;
                         } catch(e) {
                             store.schedule = JSON.parse(JSON.stringify(defaultScheduleData));
                             store.bulletin = JSON.parse(JSON.stringify(defaultBulletin));
                             store.activities = JSON.parse(JSON.stringify(defaultActivities));
-                            store.visitorCount = 1234;
+                            store.visitorCount = 5;
                         }
                     } else {
                         store.schedule = JSON.parse(JSON.stringify(defaultScheduleData));
                         store.bulletin = JSON.parse(JSON.stringify(defaultBulletin));
                         store.activities = JSON.parse(JSON.stringify(defaultActivities));
-                        store.visitorCount = 1234;
+                        store.visitorCount = 5;
                     }
                 };
 
@@ -732,16 +733,16 @@
                     return queryType.value === 'volunteer' && queryValue.value === (name ? name.trim() : '');
                 };
 
-                // 依單元名稱 (U1, U2, U3) 回傳對應的單元標籤顏色
+                // 依單元名稱 (U1黃色, U2淡綠色, U3粉紫色) 回傳對應的單元標籤顏色
                 const getUnitBadgeClass = (unit) => {
                     const u = (unit || '').toUpperCase().trim();
-                    if (u === 'U1') return 'bg-amber-100 text-amber-900 border border-amber-300';
-                    if (u === 'U2') return 'bg-emerald-100 text-emerald-800 border border-emerald-300';
-                    if (u === 'U3') return 'bg-purple-100 text-purple-800 border border-purple-300';
+                    if (u === 'U1') return 'bg-amber-100 text-amber-900 border border-amber-300'; // 黃色
+                    if (u === 'U2') return 'bg-emerald-100 text-emerald-800 border border-emerald-300'; // 淡綠色
+                    if (u === 'U3') return 'bg-purple-100 text-purple-800 border border-purple-300'; // 粉紫色
                     return 'bg-slate-100 text-slate-800 border border-slate-300';
                 };
 
-                // 依單元名稱 (U1, U2, U3) 回傳對應的主講人文字與背景色風格
+                // 依單元名稱 回傳對應的主講人文字與背景色風格
                 const getMainSpeakerClass = (unit) => {
                     const u = (unit || '').toUpperCase().trim();
                     if (u === 'U1') return 'text-amber-900 bg-amber-100/90 border border-amber-300 font-extrabold';
@@ -851,6 +852,28 @@
                     else expandedBulletins.value.push(idx);
                 };
 
+                // 佈告欄拖曳邏輯
+                const draggedBulletinIdx = ref(null);
+                const dragStartBulletin = (idx) => { draggedBulletinIdx.value = idx; };
+                const dropBulletin = (targetIdx) => {
+                    if (draggedBulletinIdx.value !== null && draggedBulletinIdx.value !== targetIdx) {
+                        const item = store.bulletin.splice(draggedBulletinIdx.value, 1)[0];
+                        store.bulletin.splice(targetIdx, 0, item);
+                    }
+                    draggedBulletinIdx.value = null;
+                };
+
+                // 活動照片拖曳邏輯
+                const draggedImg = ref({ actId: null, idx: null });
+                const dragStartImg = (actId, idx) => { draggedImg.value = { actId, idx }; };
+                const dropImg = (act, targetIdx) => {
+                    if (draggedImg.value.actId === act.id && draggedImg.value.idx !== null && draggedImg.value.idx !== targetIdx) {
+                        const item = act.images.splice(draggedImg.value.idx, 1)[0];
+                        act.images.splice(targetIdx, 0, item);
+                    }
+                    draggedImg.value = { actId: null, idx: null };
+                };
+
                 const showToast = (msg) => {
                     toastMsg.value = msg;
                     setTimeout(() => { toastMsg.value = ''; }, 3000);
@@ -915,9 +938,14 @@
                     });
                 };
 
-                const saveDataToLocal = () => {
+                const saveDataToLocal = (silent = false) => {
                     try {
-                        store.lastUpdated = new Date().toLocaleString();
+                        // 若不是靜默儲存（意即使用者手動在後台點擊），才更新最後修改時間為當下
+                        if (!silent) {
+                            // 可切換為 new Date().toLocaleString('zh-TW', { hour12: true }) 
+                            // 但為了依照要求預設文字，暫時保留手動編輯或由系統紀錄
+                        }
+                        
                         localStorage.setItem('astronomyData115_v12', JSON.stringify({
                             schedule: store.schedule,
                             bulletin: store.bulletin,
@@ -925,9 +953,9 @@
                             lastUpdated: store.lastUpdated,
                             visitorCount: store.visitorCount
                         }));
-                        showToast('所有變更已成功儲存！');
+                        if (!silent) showToast('所有變更已成功儲存！');
                     } catch (e) {
-                        alert('儲存失敗：瀏覽器儲存空間已滿，請刪除部分照片後再試。');
+                        if (!silent) alert('儲存失敗：瀏覽器儲存空間已滿，請刪除部分照片後再試。');
                     }
                 };
 
@@ -961,9 +989,9 @@
                                 store.schedule = parsed.schedule;
                                 store.bulletin = parsed.bulletin || [];
                                 store.activities = parsed.activities || [];
-                                store.lastUpdated = parsed.lastUpdated || new Date().toLocaleString();
+                                store.lastUpdated = parsed.lastUpdated || store.lastUpdated;
                                 store.visitorCount = parsed.visitorCount !== undefined ? parsed.visitorCount : store.visitorCount;
-                                saveDataToLocal();
+                                saveDataToLocal(false);
                                 showToast('備份檔匯入成功並已自動儲存！');
                             }
                         } catch (err) {
@@ -974,16 +1002,24 @@
                     e.target.value = '';
                 };
 
-                onMounted(() => { loadData(); });
+                // 當網頁載入時觸發
+                onMounted(() => {
+                    loadData();
+                    // 到訪人數計數器：每次載入自動 +1
+                    store.visitorCount++;
+                    // 靜默儲存回 LocalStorage (不跳出通知)
+                    saveDataToLocal(true);
+                });
 
+                // 確保所有必要函式都有在此 return (修復班表空白的關鍵)
                 return {
                     tabs, currentTab, store, todayDate, getWeekday, formatShortDate, getRowColorClass,
                     queryType, queryValue, gradeList, classList, volunteerList, filteredSchedule, totalClassesCount, isHighlighted,
-                    filteredGroups,
+                    filteredGroups, getUnitBadgeClass, getMainSpeakerClass,
                     selectedVolunteerForChart, calculatedStats,
                     isAdmin, adminPwd, loginError, loginAdmin, forgotPassword,
                     handleImageDrop, toastMsg, saveDataToLocal, exportJson, importJson,
-                    expandedBulletins, toggleBulletin
+                    expandedBulletins, toggleBulletin, dragStartBulletin, dropBulletin, dragStartImg, dropImg
                 };
             }
         };
