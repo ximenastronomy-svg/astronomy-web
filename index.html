@@ -143,16 +143,20 @@
                             <div class="md:hidden flex flex-col gap-2.5">
                                 <div v-for="(item, idx) in store.bulletin" :key="idx" class="bg-white border border-indigo-100 rounded-xl overflow-hidden shadow-sm">
                                     <div @click="toggleBulletin(idx)" class="p-3.5 flex justify-between items-center cursor-pointer active:bg-gray-50 transition-colors">
-                                        <div class="font-bold text-indigo-900 text-sm truncate pr-2 flex-1">{{ item.content }}</div>
+                                        <div class="flex items-center gap-2 flex-1 min-w-0 pr-2">
+                                            <span class="text-indigo-900 font-bold whitespace-nowrap text-xs shrink-0">{{ item.date }}</span>
+                                            <span class="text-gray-400 text-xs hidden sm:inline">|</span>
+                                            <span class="font-bold text-gray-800 text-sm truncate">{{ item.content }}</span>
+                                        </div>
                                         <div class="text-indigo-400 text-xs shrink-0 flex items-center gap-1.5">
-                                            <span v-if="!expandedBulletins.includes(idx)" class="font-black text-gray-400 tracking-widest">...</span>
+                                            <span v-if="!expandedBulletins.includes(idx)" class="font-black text-gray-400 tracking-widest hidden sm:inline">...</span>
                                             <i class="fas" :class="expandedBulletins.includes(idx) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                                         </div>
                                     </div>
                                     <div v-show="expandedBulletins.includes(idx)" class="px-4 pb-4 pt-2 border-t border-indigo-50 bg-indigo-50/30 text-xs space-y-2">
-                                        <div class="flex"><span class="w-12 shrink-0 text-gray-500 font-bold">日期</span><span class="text-indigo-900 font-bold">{{ item.date }}</span></div>
                                         <div class="flex"><span class="w-12 shrink-0 text-gray-500 font-bold">時間</span><span class="text-gray-700">{{ item.time }}</span></div>
                                         <div class="flex"><span class="w-12 shrink-0 text-gray-500 font-bold">地點</span><span class="text-indigo-800">{{ item.location }}</span></div>
+                                        <div class="flex"><span class="w-12 shrink-0 text-gray-500 font-bold">內容</span><span class="text-gray-800">{{ item.content }}</span></div>
                                         <div class="flex" v-if="item.notes"><span class="w-12 shrink-0 text-gray-500 font-bold">備註</span><span class="text-gray-600">{{ item.notes }}</span></div>
                                     </div>
                                 </div>
@@ -219,7 +223,7 @@
                             </div>
                             <div class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 text-center">
                                 <span class="text-gray-500 text-xs font-bold block mb-1">最後更新</span>
-                                <span class="font-mono text-emerald-600 text-sm md:text-base font-black">{{ store.lastUpdated || '2026/9/5 下午1:07:37' }}</span>
+                                <span class="font-mono text-emerald-600 text-sm md:text-base font-black">{{ store.lastUpdated || '2026/9/7' }}</span>
                             </div>
                             <div class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 text-center">
                                 <span class="text-gray-500 text-xs font-bold block mb-1">全校進班</span>
@@ -580,8 +584,10 @@
             },
             { id: "g5", title: "五年級班級區塊", dates: [{ date: "2026-11-25" }, { date: "2026-11-26" }, { date: "2026-11-27" }],
               classes: [
-                { id: "501", name: "501", teacher: "盧仕純", lessons: [{ unit: "U1", main: "方盈", asst1: "小棻", asst2: "玉伶", asst3: "" }, { unit: "U2", main: "怡婷", asst1: "美靜", asst2: "瑞夫", asst3: "" }, { unit: "U3", main: "小棻", asst1: "健庭", asst2: "芊芊", asst3: "" }] },
-                { id: "502", name: "502", teacher: "蔡銘益", lessons: [{ unit: "U1", main: "英淳", asst1: "瑋瑜", asst2: "珍華", asst3: "" }, { unit: "U3", main: "芊芊", asst1: "瑋瑜", asst2: "玉伶", asst3: "" }, { unit: "U2", main: "瑞夫", asst1: "美靜", asst2: "瑋瑜", asst3: "" }] }
+                // 11/26 (即 lessons 第2次) 501 的玉伶調至 501 (原本是瑞夫) -> 這裡已做調換
+                { id: "501", name: "501", teacher: "盧仕純", lessons: [{ unit: "U1", main: "方盈", asst1: "小棻", asst2: "玉伶", asst3: "" }, { unit: "U2", main: "怡婷", asst1: "美靜", asst2: "玉伶", asst3: "" }, { unit: "U3", main: "小棻", asst1: "健庭", asst2: "芊芊", asst3: "" }] },
+                // 11/26 (即 lessons 第2次) 502 的瑞夫調至 502 (原本是玉伶) -> 這裡已做調換
+                { id: "502", name: "502", teacher: "蔡銘益", lessons: [{ unit: "U1", main: "英淳", asst1: "瑋瑜", asst2: "珍華", asst3: "" }, { unit: "U3", main: "芊芊", asst1: "瑋瑜", asst2: "玉伶", asst3: "" }, { unit: "U2", main: "瑞夫", asst1: "美靜", asst2: "瑞夫", asst3: "" }] }
               ]
             },
             { id: "g6", title: "六年級班級區塊", dates: [{ date: "2026-12-03" }, { date: "2026-12-09" }, { date: "2026-12-10" }],
@@ -602,8 +608,8 @@
                     { id: 'admin', label: '後臺管理', icon: 'fas fa-cogs' }
                 ];
                 
-                // 初始化 visitorCount 為 5，並設定預設時間
-                const store = reactive({ schedule: [], bulletin: [], activities: [], lastUpdated: '2026/9/5 下午1:07:37', visitorCount: 5 });
+                // 設定為指定時間
+                const store = reactive({ schedule: [], bulletin: [], activities: [], lastUpdated: '2026/9/7', visitorCount: 5 });
 
                 const todayDate = computed(() => {
                     const d = new Date();
@@ -637,7 +643,8 @@
                 };
 
                 const loadData = () => {
-                    const localData = localStorage.getItem('astronomyData115_v12');
+                    // 已升級為 v13
+                    const localData = localStorage.getItem('astronomyData115_v13');
                     if (localData) {
                         try {
                             const parsed = JSON.parse(localData);
@@ -655,20 +662,21 @@
                                 store.activities = defaultActivities;
                             }
 
-                            // 讀取最後更新時間與拜訪人數 (如果沒有，給定預設值)
-                            store.lastUpdated = parsed.lastUpdated || '2026/9/5 下午1:07:37';
+                            store.lastUpdated = parsed.lastUpdated || '2026/9/7';
                             store.visitorCount = parsed.visitorCount !== undefined ? parsed.visitorCount : 5;
                         } catch(e) {
                             store.schedule = JSON.parse(JSON.stringify(defaultScheduleData));
                             store.bulletin = JSON.parse(JSON.stringify(defaultBulletin));
                             store.activities = JSON.parse(JSON.stringify(defaultActivities));
                             store.visitorCount = 5;
+                            store.lastUpdated = '2026/9/7';
                         }
                     } else {
                         store.schedule = JSON.parse(JSON.stringify(defaultScheduleData));
                         store.bulletin = JSON.parse(JSON.stringify(defaultBulletin));
                         store.activities = JSON.parse(JSON.stringify(defaultActivities));
                         store.visitorCount = 5;
+                        store.lastUpdated = '2026/9/7';
                     }
                 };
 
@@ -733,16 +741,14 @@
                     return queryType.value === 'volunteer' && queryValue.value === (name ? name.trim() : '');
                 };
 
-                // 依單元名稱 (U1黃色, U2淡綠色, U3粉紫色) 回傳對應的單元標籤顏色
                 const getUnitBadgeClass = (unit) => {
                     const u = (unit || '').toUpperCase().trim();
-                    if (u === 'U1') return 'bg-amber-100 text-amber-900 border border-amber-300'; // 黃色
-                    if (u === 'U2') return 'bg-emerald-100 text-emerald-800 border border-emerald-300'; // 淡綠色
-                    if (u === 'U3') return 'bg-purple-100 text-purple-800 border border-purple-300'; // 粉紫色
+                    if (u === 'U1') return 'bg-amber-100 text-amber-900 border border-amber-300';
+                    if (u === 'U2') return 'bg-emerald-100 text-emerald-800 border border-emerald-300';
+                    if (u === 'U3') return 'bg-purple-100 text-purple-800 border border-purple-300';
                     return 'bg-slate-100 text-slate-800 border border-slate-300';
                 };
 
-                // 依單元名稱 回傳對應的主講人文字與背景色風格
                 const getMainSpeakerClass = (unit) => {
                     const u = (unit || '').toUpperCase().trim();
                     if (u === 'U1') return 'text-amber-900 bg-amber-100/90 border border-amber-300 font-extrabold';
@@ -844,7 +850,7 @@
                 const loginError = ref('');
                 const toastMsg = ref('');
 
-                // 佈告欄手機版展開控制
+                // 手機版佈告欄展開
                 const expandedBulletins = ref([]);
                 const toggleBulletin = (idx) => {
                     const pos = expandedBulletins.value.indexOf(idx);
@@ -852,7 +858,6 @@
                     else expandedBulletins.value.push(idx);
                 };
 
-                // 佈告欄拖曳邏輯
                 const draggedBulletinIdx = ref(null);
                 const dragStartBulletin = (idx) => { draggedBulletinIdx.value = idx; };
                 const dropBulletin = (targetIdx) => {
@@ -863,7 +868,6 @@
                     draggedBulletinIdx.value = null;
                 };
 
-                // 活動照片拖曳邏輯
                 const draggedImg = ref({ actId: null, idx: null });
                 const dragStartImg = (actId, idx) => { draggedImg.value = { actId, idx }; };
                 const dropImg = (act, targetIdx) => {
@@ -940,13 +944,7 @@
 
                 const saveDataToLocal = (silent = false) => {
                     try {
-                        // 若不是靜默儲存（意即使用者手動在後台點擊），才更新最後修改時間為當下
-                        if (!silent) {
-                            // 可切換為 new Date().toLocaleString('zh-TW', { hour12: true }) 
-                            // 但為了依照要求預設文字，暫時保留手動編輯或由系統紀錄
-                        }
-                        
-                        localStorage.setItem('astronomyData115_v12', JSON.stringify({
+                        localStorage.setItem('astronomyData115_v13', JSON.stringify({
                             schedule: store.schedule,
                             bulletin: store.bulletin,
                             activities: store.activities,
@@ -961,7 +959,7 @@
 
                 const exportJson = () => {
                     const data = {
-                        version: "v12",
+                        version: "v13",
                         exportAt: new Date().toISOString(),
                         schedule: store.schedule,
                         bulletin: store.bulletin,
@@ -1002,16 +1000,12 @@
                     e.target.value = '';
                 };
 
-                // 當網頁載入時觸發
                 onMounted(() => {
                     loadData();
-                    // 到訪人數計數器：每次載入自動 +1
                     store.visitorCount++;
-                    // 靜默儲存回 LocalStorage (不跳出通知)
                     saveDataToLocal(true);
                 });
 
-                // 確保所有必要函式都有在此 return (修復班表空白的關鍵)
                 return {
                     tabs, currentTab, store, todayDate, getWeekday, formatShortDate, getRowColorClass,
                     queryType, queryValue, gradeList, classList, volunteerList, filteredSchedule, totalClassesCount, isHighlighted,
