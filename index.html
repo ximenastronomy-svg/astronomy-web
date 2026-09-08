@@ -223,7 +223,7 @@
                             </div>
                             <div class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 text-center">
                                 <span class="text-gray-500 text-xs font-bold block mb-1">最後更新</span>
-                                <span class="font-mono text-emerald-600 text-sm md:text-base font-black">{{ store.lastUpdated || '2026/9/7' }}</span>
+                                <span class="font-mono text-emerald-600 text-sm md:text-base font-black">{{ store.lastUpdated || '2026/9/9' }}</span>
                             </div>
                             <div class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-100 text-center">
                                 <span class="text-gray-500 text-xs font-bold block mb-1">全校進班</span>
@@ -544,6 +544,18 @@
 
         const defaultActivities = [
             { 
+                id: 2, 
+                title: "115上期初會議(115.9.9)", 
+                desc: "活動內容:進班前的複習,同時歡樂的聚會", 
+                images: [
+                    "S__43630601_0.jpg",
+                    "S__43630602_0.jpg",
+                    "S__43630603_0.jpg",
+                    "S__43630604_0.jpg",
+                    "S__43630605_0.jpg"
+                ] 
+            },
+            { 
                 id: 1, 
                 title: "115上學期 星際好朋友師培", 
                 desc: "感謝各位夥伴熱情參與師資培訓！大家在會議與實作中學習到了更多引導孩子們探索宇宙的技巧，期待新學期的到來。", 
@@ -567,7 +579,8 @@
             { id: "g2", title: "二年級班級區塊", dates: [{ date: "2026-10-07" }, { date: "2026-10-08" }, { date: "2026-10-14" }],
               classes: [
                 { id: "201", name: "201", teacher: "許媖華", lessons: [{ unit: "U1", main: "方盈", asst1: "瑋瑜", asst2: "美靜", asst3: "" }, { unit: "U3", main: "芊芊", asst1: "玉伶", asst2: "瑞夫", asst3: "美靜" }, { unit: "U2", main: "美靜", asst1: "英淳", asst2: "方盈", asst3: "" }] },
-                { id: "202", name: "202", teacher: "鄭佳宜", lessons: [{ unit: "U1", main: "珍華", asst1: "玉伶", asst2: "小棻", asst3: "" }, { unit: "U2", main: "怡婷", asst1: "英淳", asst2: "珍華", asst3: "" }, { unit: "U3", main: "小棻", asst1: "珍華", asst2: "瑋瑜", asst3: "玉伶" }] }
+                // 10/08 202 班助教異動: 珍華 -> 方盈
+                { id: "202", name: "202", teacher: "鄭佳宜", lessons: [{ unit: "U1", main: "珍華", asst1: "玉伶", asst2: "小棻", asst3: "" }, { unit: "U2", main: "怡婷", asst1: "英淳", asst2: "方盈", asst3: "" }, { unit: "U3", main: "小棻", asst1: "珍華", asst2: "瑋瑜", asst3: "玉伶" }] }
               ]
             },
             { id: "g1", title: "一年級班級區塊", dates: [{ date: "2026-10-15" }, { date: "2026-10-21" }, { date: "2026-10-22" }],
@@ -584,15 +597,14 @@
             },
             { id: "g5", title: "五年級班級區塊", dates: [{ date: "2026-11-25" }, { date: "2026-11-26" }, { date: "2026-11-27" }],
               classes: [
-                // 11/26 (即 lessons 第2次) 501 的玉伶調至 501 (原本是瑞夫) -> 這裡已做調換
                 { id: "501", name: "501", teacher: "盧仕純", lessons: [{ unit: "U1", main: "方盈", asst1: "小棻", asst2: "玉伶", asst3: "" }, { unit: "U2", main: "怡婷", asst1: "美靜", asst2: "玉伶", asst3: "" }, { unit: "U3", main: "小棻", asst1: "健庭", asst2: "芊芊", asst3: "" }] },
-                // 11/26 (即 lessons 第2次) 502 的瑞夫調至 502 (原本是玉伶) -> 這裡已做調換
                 { id: "502", name: "502", teacher: "蔡銘益", lessons: [{ unit: "U1", main: "英淳", asst1: "瑋瑜", asst2: "珍華", asst3: "" }, { unit: "U3", main: "芊芊", asst1: "瑋瑜", asst2: "玉伶", asst3: "" }, { unit: "U2", main: "瑞夫", asst1: "美靜", asst2: "瑞夫", asst3: "" }] }
               ]
             },
             { id: "g6", title: "六年級班級區塊", dates: [{ date: "2026-12-03" }, { date: "2026-12-09" }, { date: "2026-12-10" }],
               classes: [
-                { id: "601", name: "601", teacher: "曾玉婷", lessons: [{ unit: "U2", main: "美靜", asst1: "瑋瑜", asst2: "方盈", asst3: "" }, { unit: "U1", main: "英淳", asst1: "美靜", asst2: "方盈", asst3: "" }, { unit: "U3", main: "芊芊", asst1: "玉伶", asst2: "方盈", asst3: "" }] },
+                // 12/03 601 班助教異動: 方盈 -> 珍華
+                { id: "601", name: "601", teacher: "曾玉婷", lessons: [{ unit: "U2", main: "美靜", asst1: "瑋瑜", asst2: "珍華", asst3: "" }, { unit: "U1", main: "英淳", asst1: "美靜", asst2: "方盈", asst3: "" }, { unit: "U3", main: "芊芊", asst1: "玉伶", asst2: "方盈", asst3: "" }] },
                 { id: "602", name: "602", teacher: "曾文巍", lessons: [{ unit: "U3", main: "小棻", asst1: "怡婷", asst2: "英淳", asst3: "" }, { unit: "U1", main: "珍華", asst1: "小棻", asst2: "瑋瑜", asst3: "" }, { unit: "U2", main: "瑞夫", asst1: "怡婷", asst2: "小棻", asst3: "" }] }
               ]
             }
@@ -608,8 +620,8 @@
                     { id: 'admin', label: '後臺管理', icon: 'fas fa-cogs' }
                 ];
                 
-                // 設定為指定時間
-                const store = reactive({ schedule: [], bulletin: [], activities: [], lastUpdated: '2026/9/7', visitorCount: 5 });
+                // 設定預設資料
+                const store = reactive({ schedule: [], bulletin: [], activities: [], lastUpdated: '2026/9/9', visitorCount: 25 });
 
                 const todayDate = computed(() => {
                     const d = new Date();
@@ -643,8 +655,8 @@
                 };
 
                 const loadData = () => {
-                    // 已升級為 v13
-                    const localData = localStorage.getItem('astronomyData115_v13');
+                    // 已升級為 v15 以確保載入最新修改項目
+                    const localData = localStorage.getItem('astronomyData115_v15');
                     if (localData) {
                         try {
                             const parsed = JSON.parse(localData);
@@ -654,7 +666,7 @@
                             if (parsed.activities && parsed.activities.length > 0) {
                                 store.activities = parsed.activities.map((act, idx) => {
                                     if (!act.images || act.images.length === 0) {
-                                        act.images = defaultActivities[idx]?.images || defaultActivities[0].images;
+                                        act.images = defaultActivities[idx]?.images || defaultActivities[0]?.images || [];
                                     }
                                     return act;
                                 });
@@ -662,21 +674,21 @@
                                 store.activities = defaultActivities;
                             }
 
-                            store.lastUpdated = parsed.lastUpdated || '2026/9/7';
-                            store.visitorCount = parsed.visitorCount !== undefined ? parsed.visitorCount : 5;
+                            store.lastUpdated = parsed.lastUpdated || '2026/9/9';
+                            store.visitorCount = parsed.visitorCount !== undefined ? parsed.visitorCount : 25;
                         } catch(e) {
                             store.schedule = JSON.parse(JSON.stringify(defaultScheduleData));
                             store.bulletin = JSON.parse(JSON.stringify(defaultBulletin));
                             store.activities = JSON.parse(JSON.stringify(defaultActivities));
-                            store.visitorCount = 5;
-                            store.lastUpdated = '2026/9/7';
+                            store.visitorCount = 25;
+                            store.lastUpdated = '2026/9/9';
                         }
                     } else {
                         store.schedule = JSON.parse(JSON.stringify(defaultScheduleData));
                         store.bulletin = JSON.parse(JSON.stringify(defaultBulletin));
                         store.activities = JSON.parse(JSON.stringify(defaultActivities));
-                        store.visitorCount = 5;
-                        store.lastUpdated = '2026/9/7';
+                        store.visitorCount = 25;
+                        store.lastUpdated = '2026/9/9';
                     }
                 };
 
@@ -944,7 +956,7 @@
 
                 const saveDataToLocal = (silent = false) => {
                     try {
-                        localStorage.setItem('astronomyData115_v13', JSON.stringify({
+                        localStorage.setItem('astronomyData115_v15', JSON.stringify({
                             schedule: store.schedule,
                             bulletin: store.bulletin,
                             activities: store.activities,
@@ -959,7 +971,7 @@
 
                 const exportJson = () => {
                     const data = {
-                        version: "v13",
+                        version: "v15",
                         exportAt: new Date().toISOString(),
                         schedule: store.schedule,
                         bulletin: store.bulletin,
@@ -1002,6 +1014,8 @@
 
                 onMounted(() => {
                     loadData();
+                    // 開啟網頁時自動增加到訪人數，若要維持顯示剛好 25 且尚未累加，可以註解此行
+                    // 但為了維持原始邏輯，將其保留。若您重整頁面，這裡會變成 26。
                     store.visitorCount++;
                     saveDataToLocal(true);
                 });
